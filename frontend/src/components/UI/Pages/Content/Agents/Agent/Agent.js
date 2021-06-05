@@ -26,7 +26,7 @@ export class Agent extends Component {
                     <IconButton onClick={this.props.handleDelete} disabled={!this.props.canDelete}>
                         <a>
                             <DeleteIcon
-                                color={!this.props.canEdit ? 'disabled' : 'primary'}
+                                color={!this.props.canDelete ? 'disabled' : 'primary'}
                                 fontSize="small"/>
                         </a>
                     </IconButton>

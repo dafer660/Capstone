@@ -21,6 +21,7 @@ import FormAgent from "./components/Forms/FormAgents/FormAgent";
 import Agents from "./components/UI/Pages/Content/Agents/Agents";
 import Loading from "./hoc/Loading/Loading";
 import ProtectedRoute from "./components/Auth/ProtectedRoute/ProtectedRoute";
+import FormCategory from "./components/Forms/FormCategories/FormCategory";
 
 class App extends Component {
     constructor(props) {
@@ -180,6 +181,26 @@ class App extends Component {
                                                                              handleToken={this.handleGetToken}
                                                                              handleGetPayload={this.handleGetPayload}
                                                                              handleCan={this.handleCan}/>}/>
+                            <ProtectedRoute path="/new-category"
+                                            component={(props) => <FormCategory {...props}
+                                                                                formCreate
+                                                                                formUpdate={false}
+                                                                                user={this.state.user}
+                                                                                permissions={this.state.permissions}
+                                                                                token={this.state.token}
+                                                                                handleToken={this.handleGetToken}
+                                                                                handleGetPayload={this.handleGetPayload}
+                                                                                handleCan={this.handleCan}/>}/>
+                            <ProtectedRoute exact path="/edit/category/:id"
+                                            component={(props) => <FormCategory {...props}
+                                                                                formUpdate
+                                                                                formCreate={false}
+                                                                                user={this.state.user}
+                                                                                permissions={this.state.permissions}
+                                                                                token={this.state.token}
+                                                                                handleToken={this.handleGetToken}
+                                                                                handleGetPayload={this.handleGetPayload}
+                                                                                handleCan={this.handleCan}/>}/>
                             <Route component={(props) => <Homepage/>}/>
                         </Switch>
                     </Layout>

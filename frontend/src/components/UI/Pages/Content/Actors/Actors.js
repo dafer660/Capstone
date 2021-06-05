@@ -229,7 +229,7 @@ export class Actors extends Component {
                     <Header>
                         <div className={classes.ActorsHeader}>
                             <h2>Actors
-                                {this.props.handleCan('post:movies', payload) ?
+                                {this.props.handleCan('post:actors', payload) ?
                                     <Link to={"/new-actor"} title={'Add an Actor'}>
                                         &#43;
                                     </Link> :

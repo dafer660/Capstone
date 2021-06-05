@@ -190,10 +190,10 @@ def create_app(config_file=Config):
         category = Category.query.filter_by(id=category_id).first_or_404()
 
         if category is None:
-            abort(404, 'Sorry, we could not find any Agents to display.')
+            abort(404, 'Sorry, we could not find any Categories to display.')
 
         return jsonify({
-            'movie': category.format(),
+            'category': category.format(),
         })
 
     '''
@@ -368,6 +368,30 @@ def create_app(config_file=Config):
 
         return jsonify({
             'agent': [current_agent.format()]
+        })
+
+    '''
+    Update an Agent here
+    '''
+
+    @app.route('/update/category/<int:category_id>', methods=['PATCH'])
+    @requires_auth('patch:categories')
+    def update_category(payload, category_id):
+        form = request.get_json(force=True)
+        current_category = Category.query.filter_by(id=category_id).first_or_404()
+
+        if current_category is None:
+            abort(500, "Category not found")
+
+        try:
+            current_category.name = form['name']
+            current_category.update()
+        except Exception as e:
+            db.session.rollback()
+            abort(500, e)
+
+        return jsonify({
+            'category': [current_category.format()]
         })
 
     '''

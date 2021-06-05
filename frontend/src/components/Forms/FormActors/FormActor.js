@@ -98,6 +98,23 @@ class FormActor extends Component {
         );
     }
 
+    handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        this.setState({
+            open: false
+        })
+    };
+
+    handleOpen = (severity, severityMessage) => {
+        this.setState({
+            open: true,
+            severity: severity,
+            severityMessage: severityMessage
+        })
+    }
+
     handleChange = (event) => {
         const name = event.target.name;
         const value = event.target.value;
