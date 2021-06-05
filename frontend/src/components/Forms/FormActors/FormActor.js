@@ -5,10 +5,11 @@ import Pages from "../../UI/Pages/Pages";
 import classes from "./FormActor.module.css";
 import {Link, withRouter} from "react-router-dom";
 
-import {Button, TextField} from '@material-ui/core';
+import {Button, Snackbar, TextField} from '@material-ui/core';
 import Moment from "moment";
 import {FormErrors} from "../Errors/Errors";
 import {string} from "prop-types";
+import Alert from "@material-ui/lab/Alert";
 
 
 class FormActor extends Component {
@@ -37,7 +38,12 @@ class FormActor extends Component {
                 agent_id: ''
             },
             allAgents: [],
-            totalAgents: 0
+            totalAgents: 0,
+            user: null,
+            permissions: [],
+            open: false,
+            severity: '',
+            severityMessage: ''
         }
     }
 
@@ -105,48 +111,87 @@ class FormActor extends Component {
     }
 
     getAllAgents = () => {
-        fetch('http://localhost:5000/agents')
-            .then((response) => {
-                if (response.ok) {
-                    return response.json()
+        // permission: 'get:agents'
+        let token = sessionStorage.getItem('token')
+        let payload, permissions
+
+        payload = this.props.handleGetPayload(token)
+        permissions = this.props.handleCan('get:agents', payload)
+        if (permissions) {
+            fetch('http://localhost:5000/agents', {
+                method: 'GET',
+                headers: {
+                    Authorization: 'Bearer ' + sessionStorage.getItem('token')
                 }
             })
-            .then((json) => {
-                this.setState({
-                    allAgents: json.agents,
-                    totalAgents: json.total_agents
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json()
+                    }
                 })
-            })
-            .catch((error) => {
-                return;
-            })
+                .then((json) => {
+                    this.setState({
+                        allAgents: json.agents,
+                        totalAgents: json.total_agents
+                    })
+                })
+                .catch((error) => {
+                    console.log(error.message)
+                    this.handleOpen('error', 'An error has occurred.');
+                    return;
+                })
+        } else {
+            this.handleOpen('error', 'An error has occurred.');
+        }
+
     }
 
     getActor = (id) => {
-        fetch(`http://localhost:5000/actor/${id}`)
-            .then((response) => {
-                if (response.ok) {
-                    return response.json()
+        // permission: 'get:actors'
+        let token = sessionStorage.getItem('token')
+        let payload, permissions
+
+        payload = this.props.handleGetPayload(token)
+        permissions = this.props.handleCan('get:actors', payload)
+        if (permissions) {
+            fetch(`http://localhost:5000/actor/${id}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: 'Bearer ' + sessionStorage.getItem('token')
                 }
             })
-            .then((json) => {
-                this.setState({
-                    actor: json.actor
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json()
+                    }
                 })
-            })
-            .catch((error) => {
-                return;
-            })
+                .then((json) => {
+                    this.setState({
+                        actor: json.actor
+                    })
+                })
+                .catch((error) => {
+                    console.log(error.message)
+                    this.handleOpen('error', 'An error has occurred.');
+                    return;
+                })
+        } else {
+            this.handleOpen('error', 'An error has occurred.');
+        }
     }
 
     handleActor = (ev) => {
         ev.preventDefault();
-        let method, url, actor
+        let method, url, actor, payload, permissions
+        // permission: 'patch:actors' or 'post:actors'
+        let token = sessionStorage.getItem('token')
+        payload = this.props.handleGetPayload(token)
 
         if (this.props.formUpdate) {
             actor = this.state.actor
             method = 'PATCH'
             url = `/update/actor/${this.state.id}`
+            permissions = this.props.handleCan('patch:actors', payload)
         } else {
             const name = document.getElementsByName('name')[0].value
             const gender = document.getElementsByName('gender')[0].value
@@ -156,7 +201,7 @@ class FormActor extends Component {
             const joined_in = document.getElementsByName('joined_in')[0].value
             method = 'POST'
             url = '/actor'
-
+            permissions = this.props.handleCan('post:actors', payload)
             actor = {name, gender, age, agent, joined_in, agent_id}
         }
 
@@ -165,6 +210,7 @@ class FormActor extends Component {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
+                'Authorization': 'Bearer ' + sessionStorage.getItem('token')
             },
             body: JSON.stringify(
                 {
@@ -177,24 +223,34 @@ class FormActor extends Component {
                 }
             )
         };
-        fetch(`http://localhost:5000${url}`, requestOptions)
-            .then((result) => {
-                if (result.status === 200) {
-                    this.props.history.push('/actors');
+        if (permissions) {
+            fetch(`http://localhost:5000${url}`, requestOptions)
+                .then((result) => {
+                    if (result.status === 200) {
+                        this.props.history.push('/actors');
+                        return;
+                    }
+                })
+                .catch((error) => {
+                    console.log(error.message)
+                    this.handleOpen('error', 'An error has occurred.');
                     return;
-                }
-            })
-            .catch((error) => {
-                alert(`There was an error handling your request\n${error.message}\nPlease try again...!`)
-                return;
-            })
-
-
+                })
+        } else {
+            this.handleOpen('error', 'An error has occurred.');
+        }
     }
 
     render() {
         return (
             <Pages>
+                <div>
+                    <Snackbar open={this.state.open} autoHideDuration={3000} onClose={this.handleClose}>
+                        <Alert variant="filled" onClose={this.handleClose} severity={this.state.severity}>
+                            {this.state.severityMessage}
+                        </Alert>
+                    </Snackbar>
+                </div>
                 <Header>
                     <div className={classes.Header}>
                         {this.props.formCreate ? <h2>Add a New Actor</h2> : <h2>Edit Actor</h2>}

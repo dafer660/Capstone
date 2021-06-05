@@ -5,10 +5,11 @@ import Pages from "../../UI/Pages/Pages";
 import classes from "./FormAgent.module.css";
 import {withRouter} from "react-router-dom";
 
-import {Button, TextField} from '@material-ui/core';
+import {Button, Snackbar, TextField} from '@material-ui/core';
 import Moment from "moment";
 import {FormErrors} from "../Errors/Errors";
 import {string} from "prop-types";
+import Alert from "@material-ui/lab/Alert";
 
 
 class FormAgent extends Component {
@@ -27,7 +28,12 @@ class FormAgent extends Component {
             agent: {
                 name: '',
                 joined_in: '',
-            }
+            },
+            user: null,
+            permissions: [],
+            open: false,
+            severity: '',
+            severityMessage: ''
         }
     }
 
@@ -74,6 +80,23 @@ class FormAgent extends Component {
         );
     }
 
+    handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        this.setState({
+            open: false
+        })
+    };
+
+    handleOpen = (severity, severityMessage) => {
+        this.setState({
+            open: true,
+            severity: severity,
+            severityMessage: severityMessage
+        })
+    }
+
     handleChange = (event) => {
         const name = event.target.name;
         const value = event.target.value;
@@ -87,36 +110,57 @@ class FormAgent extends Component {
     }
 
     getAgent = (id) => {
-        fetch(`http://localhost:5000/agent/${id}`)
-            .then((response) => {
-                if (response.ok) {
-                    return response.json()
+        // permission: 'get:agents'
+        let token = sessionStorage.getItem('token')
+        let payload, permissions
+
+        payload = this.props.handleGetPayload(token)
+        permissions = this.props.handleCan('get:agents', payload)
+
+        if (permissions) {
+            fetch(`http://localhost:5000/agent/${id}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: 'Bearer ' + sessionStorage.getItem('token')
                 }
             })
-            .then((json) => {
-                this.setState({
-                    agent: json.agent
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json()
+                    }
                 })
-            })
-            .catch((error) => {
-                alert(`There was an error handling your request\n${error.message}\nPlease try again...!`);
-                return;
-            })
+                .then((json) => {
+                    this.setState({
+                        agent: json.agent
+                    })
+                })
+                .catch((error) => {
+                    alert(`There was an error handling your request\n${error.message}\nPlease try again...!`);
+                    return;
+                })
+        } else {
+            this.handleOpen('error', 'An error has occurred.');
+        }
     }
 
     handleAgent = (ev) => {
         ev.preventDefault();
-        let method, url, agent
+        let method, url, agent, payload, permissions
+        // permission: 'patch:agents' or 'post:agents'
+        let token = sessionStorage.getItem('token')
+        payload = this.props.handleGetPayload(token)
 
         if (this.props.formUpdate) {
             agent = this.state.agent
             method = 'PATCH'
             url = `/update/agent/${this.state.id}`
+            permissions = this.props.handleCan('patch:agents', payload)
         } else {
             const name = document.getElementsByName('name')[0].value
             const joined_in = document.getElementsByName('joined_in')[0].value
             method = 'POST'
             url = '/agent'
+            permissions = this.props.handleCan('post:agents', payload)
 
             agent = {name, joined_in}
         }
@@ -126,6 +170,7 @@ class FormAgent extends Component {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
+                'Authorization': 'Bearer ' + sessionStorage.getItem('token')
             },
             body: JSON.stringify(
                 {
@@ -134,22 +179,34 @@ class FormAgent extends Component {
                 }
             )
         };
-        fetch(`http://localhost:5000${url}`, requestOptions)
-            .then((result) => {
-                if (result.status === 200) {
-                    this.props.history.push('/agents');
+        if (permissions) {
+            fetch(`http://localhost:5000${url}`, requestOptions)
+                .then((result) => {
+                    if (result.status === 200) {
+                        this.props.history.push('/agents');
+                        return;
+                    }
+                })
+                .catch((error) => {
+                    console.log(error.message)
+                    this.handleOpen('error', 'An error has occurred.');
                     return;
-                }
-            })
-            .catch((error) => {
-                alert(`There was an error handling your request\n${error.message}\nPlease try again...!`)
-                return;
-            })
+                })
+        } else {
+            this.handleOpen('error', 'An error has occurred.');
+        }
     }
 
     render() {
         return (
             <Pages>
+                <div>
+                    <Snackbar open={this.state.open} autoHideDuration={3000} onClose={this.handleClose}>
+                        <Alert variant="filled" onClose={this.handleClose} severity={this.state.severity}>
+                            {this.state.severityMessage}
+                        </Alert>
+                    </Snackbar>
+                </div>
                 <Header>
                     <div className={classes.Header}>
                         {this.props.formCreate ? <h2>Add a New Agent</h2> : <h2>Edit Agent</h2>}

@@ -23,14 +23,20 @@ export class Agent extends Component {
                 <td>{final_name}</td>
                 <td><span className={classes.AgentDate}>{Moment(joined_in).format('DD MMMM YYYY')}</span></td>
                 <td className={classes.Icons}>
-                    <IconButton onClick={this.props.handleDelete}>
-                        <DeleteIcon fontSize="small"/>
+                    <IconButton onClick={this.props.handleDelete} disabled={!this.props.canDelete}>
+                        <a>
+                            <DeleteIcon
+                                color={!this.props.canEdit ? 'disabled' : 'primary'}
+                                fontSize="small"/>
+                        </a>
                     </IconButton>
-                    <Link to={'edit/agent/' + this.props.editAgent}>
-                        <IconButton>
-                            <EditIcon fontSize="small"/>
-                        </IconButton>
-                    </Link>
+                    <IconButton disabled={!this.props.canEdit}>
+                        <Link to={'edit/agent/' + this.props.editAgent}>
+                            <EditIcon
+                                color={!this.props.canEdit ? 'disabled' : 'primary'}
+                                fontSize="small"/>
+                        </Link>
+                    </IconButton>
                 </td>
             </tr>
         )

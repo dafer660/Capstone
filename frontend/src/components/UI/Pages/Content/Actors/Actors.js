@@ -82,6 +82,16 @@ export class Actors extends Component {
         })
     }
 
+    handlePageClick = (data) => {
+        let selected = data.selected;
+        // let offset = Math.ceil(selected * this.props.perPage);
+        let offset = Math.ceil(selected * 10);
+
+        this.setState({offset: offset, currentPage: selected + 1}, () => {
+            this.getActors();
+        });
+    }
+
     handleUpdate = (id) => {
         // permission: 'patch:actors'
         let token = sessionStorage.getItem('token')
@@ -114,7 +124,6 @@ export class Actors extends Component {
         } else {
             this.handleOpen('error', 'An error has occurred.');
         }
-
     }
 
     handleDelete = (id) => {
@@ -155,16 +164,6 @@ export class Actors extends Component {
             this.handleOpen('error', 'An error has occurred.');
         }
 
-    }
-
-    handlePageClick = (data) => {
-        let selected = data.selected;
-        // let offset = Math.ceil(selected * this.props.perPage);
-        let offset = Math.ceil(selected * 10);
-
-        this.setState({offset: offset, currentPage: selected + 1}, () => {
-            this.getActors();
-        });
     }
 
     getActors = async () => {
