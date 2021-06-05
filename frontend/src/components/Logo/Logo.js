@@ -8,7 +8,7 @@ const Logo = (props) => {
     return (
         <div className={styleLogo.Logo}>
             <NavLink to={'/'}>
-                <img src={iconLogo} alt="Homepage"/>
+                <img src={''} alt="Homepage"/>
             </NavLink>
         </div>
     )

@@ -8,27 +8,23 @@ AUTH0_DOMAIN = 'ferreiratech.eu.auth0.com'
 ALGORITHMS = ['RS256']
 API_AUDIENCE = 'ferreiratech'
 
-## AuthError Exception
-'''
-AuthError Exception
-A standardized way to communicate auth failure modes
-'''
-
 
 class AuthError(Exception):
+    """
+    AuthError Exception
+    A standardized way to communicate auth failure modes
+    """
+
     def __init__(self, error, status_code):
         self.error = error
         self.status_code = status_code
 
 
-# Auth Header
-
-
 def get_auth_token():
-    '''
+    """
     Attempt to get the header from the request
     :return: token
-    '''
+    """
     headers = request.headers
     if 'Authorization' not in headers:
         raise AuthError({
@@ -54,13 +50,13 @@ def get_auth_token():
 
 
 def check_permissions(permission, payload):
-    '''
+    """
     Checks the permissions from the payload and returns True if not errors raised
     NOTE: check your RBAC settings in Auth0
     :param permission: permission in the JWT header
     :param payload: JWT payload
     :return: True if no errors are raised
-    '''
+    """
     if 'permissions' not in payload:
         raise AuthError({
             'code': 'invalid_claims',
@@ -77,12 +73,12 @@ def check_permissions(permission, payload):
 
 
 def verify_decode_jwt(token):
-    '''
+    """
     Used to verify and decode the token
     NOTES: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
     :param token:
     :return: payload
-    '''
+    """
     # GET THE PUBLIC KEY FROM AUTH0
     jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
@@ -145,13 +141,13 @@ def verify_decode_jwt(token):
 
 
 def requires_auth(permission=None):
-    '''
+    """
     I will start permission as None and validate below in order to use this
     decorator in case I do not want to validate a permission, but only if
     user has a valid token
     :param permission:
     :return: payload
-    '''
+    """
 
     def requires_auth_decorator(f):
         @wraps(f)

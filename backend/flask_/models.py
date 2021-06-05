@@ -1,7 +1,8 @@
 import os
 
-from sqlalchemy import Column, String, Integer, create_engine
+from sqlalchemy import Column, String, Integer, Date, DateTime, ForeignKey, create_engine
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 import json
 
 db = SQLAlchemy()
@@ -20,25 +21,28 @@ def setup_db(app):
 
 
 '''
-Question
+Movies
 '''
 
 
-class Question(db.Model):
-    __tablename__ = 'questions'
+class Movies(db.Model):
+    __tablename__ = 'movies'
 
     id = Column(Integer, primary_key=True)
-    question = Column(String)
-    answer = Column(String)
-    category = Column(Integer)
-    difficulty = Column(Integer)
+    title = Column(String)
+    release_date = Column(Date)
     rating = Column(Integer)
+    # Many to Many
+    actors = db.relationship('Actors',
+                             secondary='movies_actors', lazy='joined',
+                             backref=db.backref('actors', lazy='dynamic'))
+    categories = db.relationship('Category',
+                                 secondary='movies_categories', lazy='joined',
+                                 backref=db.backref('categories', lazy='dynamic'))
 
-    def __init__(self, question, answer, category, difficulty, rating):
-        self.question = question
-        self.answer = answer
-        self.category = category
-        self.difficulty = difficulty
+    def __init__(self, title, release_date, rating):
+        self.title = title
+        self.release_date = release_date
         self.rating = rating
 
     def insert(self):
@@ -55,10 +59,10 @@ class Question(db.Model):
     def format(self):
         return {
             'id': self.id,
-            'question': self.question,
-            'answer': self.answer,
-            'category': self.category,
-            'difficulty': self.difficulty,
+            'title': self.title,
+            'release_date': self.release_date,
+            'categories': [category.name for category in self.categories],
+            'actors': [actor.name for actor in self.actors],
             'rating': self.rating
         }
 
@@ -72,106 +76,155 @@ class Category(db.Model):
     __tablename__ = 'categories'
 
     id = Column(Integer, primary_key=True)
-    type = Column(String)
+    name = Column(String)
 
-    def __init__(self, type):
-        self.type = type
+    def __init__(self, name):
+        self.name = name
 
     def insert(self):
         db.session.add(self)
         db.session.commit()
 
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     def format(self):
         return {
             'id': self.id,
-            'type': self.type
+            'name': self.name
         }
 
 
 '''
-Quiz
+Actors
 '''
 
 
-class Quiz(db.Model):
-    __tablename__ = 'quiz'
-
-    def __init__(self, score, user_id):
-        self.score = score
-        self.user_id = user_id
+class Actors(db.Model):
+    __tablename__ = 'actors'
 
     id = Column(Integer, primary_key=True)
-    score = db.Column(Integer)
-    user_id = Column(Integer, db.ForeignKey('users.id', ondelete="cascade"),
-                     nullable=False)
+    name = Column(String)
+    age = Column(Integer)
+    gender = Column(String)
+    joined_in = Column(Date)
+
+    # Foreign Keys
+    agent_id = Column(Integer, ForeignKey('agents.id', ondelete='CASCADE'))
+
+    def __init__(self, name, age, gender, agent_id, joined_in=datetime.now()):
+        self.name = name
+        self.age = age
+        self.gender = gender
+        self.joined_in = joined_in
+        self.agent_id = agent_id
 
     def insert(self):
         db.session.add(self)
         db.session.commit()
 
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     def format(self):
+        curr_agent = Agents.query.filter_by(id=self.agent_id).first()
+        if curr_agent is None:
+            agent = None
+        else:
+            agent = curr_agent.name
+
         return {
             'id': self.id,
-            'score': self.score,
-            'user_id': self.user_id
+            'name': self.name,
+            'age': self.age,
+            'gender': self.gender,
+            'joined_in': self.joined_in,
+            'agent': agent,
+            'agent_id': self.agent_id
         }
 
-    @classmethod
-    def get_quizzes(cls, user_id):
-        return cls.query.filter_by(user_id=user_id).all()
-
 
 '''
-User
+MoviesActors
 '''
 
 
-class User(db.Model):
-    __tablename__ = 'users'
+class MoviesActors(db.Model):
+    __tablename__ = 'movies_actors'
 
     id = Column(Integer, primary_key=True)
-    username = Column(String(255), nullable=False, unique=True)
-    hashed_password = Column(db.String, nullable=False)
-    roles = Column(db.String)
-    is_active = Column(db.Boolean, default=True)
-    score = db.relationship('Quiz',
-                            backref="user_scores",
-                            lazy=True)
+    movie_id = Column(Integer, ForeignKey('movies.id', ondelete='CASCADE'))
+    actor_id = Column(Integer, ForeignKey('actors.id', ondelete='CASCADE'))
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+'''
+MoviesCategories
+'''
+
+
+class MoviesCategories(db.Model):
+    __tablename__ = 'movies_categories'
+
+    id = Column(Integer, primary_key=True)
+    category_id = Column(Integer, ForeignKey('categories.id', ondelete='CASCADE'))
+    movie_id = Column(Integer, ForeignKey('movies.id', ondelete='CASCADE'))
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+'''
+Agents
+'''
+
+
+class Agents(db.Model):
+    __tablename__ = 'agents'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    joined_in = Column(Date, default=datetime.now())
+
+    # One to Many
+    actors = db.relationship('Actors', backref='agents', lazy=True)
+
+    def __init__(self, name, joined_in=datetime.now()):
+        self.name = name
+        self.joined_in = joined_in
 
     def insert(self):
         db.session.add(self)
         db.session.commit()
 
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     def format(self):
         return {
             'id': self.id,
-            'username': self.username,
-            'active': self.is_active,
-            'roles': self.roles,
+            'name': self.name,
+            'joined_in': self.joined_in
         }
-
-    def is_valid(self):
-        return self.is_active
-
-    @property
-    def identity(self):
-        return self.id
-
-    @property
-    def rolenames(self):
-        try:
-            return self.roles.split(",")
-        except Exception:
-            return []
-
-    @property
-    def password(self):
-        return self.hashed_password
-
-    @classmethod
-    def lookup(cls, username):
-        return cls.query.filter_by(username=username).first()
-
-    @classmethod
-    def identify(cls, id):
-        return cls.query.filter_by(id=id).first()

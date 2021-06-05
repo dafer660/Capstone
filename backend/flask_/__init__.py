@@ -1,27 +1,24 @@
-import os
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
-# from flask_praetorian import Praetorian, auth_required, current_user
-import random
 
 from .config import TestConfig, Config
-
-from werkzeug.utils import secure_filename
-
-from .models import setup_db, Question, Category, User, Quiz
-
-UPLOAD_FOLDER = '..\\frontend\\public'
+from .models import setup_db, Movies, Actors, Category, MoviesCategories, MoviesActors, Agents
+from .auth import requires_auth
 
 db = SQLAlchemy()
 cors = CORS()
 migrate = Migrate()
-guard = Praetorian()
 
 
-# Do pagination stuff here
 def paginate(request, selection):
+    """
+
+    :param request: request passed used to get the current page
+    :param selection: the object from the database to paginate
+    :return: the paginated object, containing a list with the formatted objects
+    """
     page = request.args.get('page', 1, type=int)
     start = (page - 1) * Config.PAGINATION
     end = start + Config.PAGINATION
@@ -32,14 +29,12 @@ def paginate(request, selection):
     return pagination
 
 
-# Return a dict with the categories
-def categorize(category_obj=None):
-    if category_obj is None:
-        category_obj = Category.query.all()
-    return {category.id: category.type for category in category_obj}
-
-
 def create_app(config_file=Config):
+    """
+    Used to create the flask app
+    :param config_file: a config file, which you can setup in the config.py file - defaults to Config
+    :return: returns the flask app
+    """
     app = Flask(__name__)
 
     app.config.from_object(config_file)
@@ -47,18 +42,9 @@ def create_app(config_file=Config):
     db.init_app(app=app)
     cors.init_app(app, resources={r"*": {"origins": "*"}})
     migrate.init_app(app=app, db=db)
-    guard.init_app(app=app, user_class=User)
 
     with app.app_context():
         setup_db(app)
-
-        if User.lookup('trivia') is None:
-            trivia_user = User(
-                username='trivia',
-                hashed_password=guard.hash_password('trivia'),
-                roles='admin'
-            )
-            trivia_user.insert()
 
     # Just do CORS stuff here before request
     @app.after_request
@@ -69,328 +55,472 @@ def create_app(config_file=Config):
 
         return response
 
-    '''
-    Test route for authentication
-    '''
+    @app.route('/movies', methods=['GET'])
+    @requires_auth('get:movies')
+    def get_movies(payload):
+        """
+        Get the Movies here and paginate them
+        :param payload:
+        :return: a json object containing the paginated movies, the latest movies (not used) and the total movies
+        """
+        movies = Movies.query.order_by(Movies.id).all()
+        latest_movies = Actors.query.order_by(Actors.joined_in.desc()).limit(2)
 
-    @app.route('/test', methods=['GET'])
-    @auth_required
-    def test():
-        return {'message': f'protected endpoint (allowed user {current_user().username})'}
+        if len(movies) == 0:
+            abort(404, 'Sorry, we could not find any Movies to display.')
 
-    '''
-    User is checked here, if logged in or not
-    '''
+        return jsonify({
+            'movies': paginate(request, movies),
+            'latest_movies': paginate(request, latest_movies),
+            'total_movies': len(movies)
+        })
 
-    @app.route('/user', methods=['GET'])
-    @auth_required
-    def user():
-        try:
-            user = current_user()
-            ret = {
-                'user': user.format(),
-                'status': 200,
-                'authenticated': True
-            }
-        except:
-            ret = {
-                'user': {},
-                'status': 401,
-                'authenticated': False
-            }
+    @app.route('/actors', methods=['GET'])
+    @requires_auth('get:actors')
+    def get_actors(payload):
+        """
+        GET method to fetch all the actors
+        :return: json object containing the paginated actors, latest actors (not being used) and total of actors
+        """
+        actors = Actors.query.order_by(Actors.id).all()
+        latest_actors = Actors.query.order_by(Actors.joined_in.desc()).limit(2)
 
-        return ret
+        if len(actors) == 0:
+            abort(404, 'Sorry, we could not find any Agents to display.')
 
-    '''
-    Login implemented here
-    '''
+        return jsonify({
+            'actors': paginate(request, actors),
+            'latest_actors': paginate(request, latest_actors),
+            'total_actors': len(actors)
+        })
 
-    @app.route('/login', methods=['POST'])
-    def login():
-        try:
-            req = request.get_json(force=True)
+    @app.route('/actor/<int:actor_id>', methods=['GET'])
+    @requires_auth('patch:actors')
+    def get_actor(payload, actor_id):
+        """
+        GET method to fetch the actor based on actor_id passed
+        :param actor_id: the id of the current actor to fetch from the database
+        :return: json object containing the actor in a proper format
+        """
+        actor = Actors.query.filter_by(id=actor_id).first_or_404()
 
-            username = req.get('username', None)
-            password = req.get('password', None)
+        if actor is None:
+            abort(404, 'Sorry, we could not find any Agents to display.')
 
-            user = guard.authenticate(username, password)
+        return jsonify({
+            'actor': actor.format(),
+        })
 
-            ret = {
-                      'status': 200,
-                      'authenticated': True,
-                      'token': guard.encode_jwt_token(user),
-                      'user': user.format()
-                  }, 200
+    @app.route('/movie/<int:movie_id>', methods=['GET'])
+    @requires_auth('patch:movies')
+    def get_movie(payload, movie_id):
+        """
+        GET method to fetch the movie based on movie_id passed
+        :param movie_id: the id of the current movie to fetch from the database
+        :return: json object containing the movie in a proper format
+        """
+        movie = Movies.query.filter_by(id=movie_id).first_or_404()
 
-        except:
-            ret = {
-                      'status': 400,
-                      'authenticated': False,
-                      'message': 'We could not log you in'
-                  }, 400
+        if movie is None:
+            abort(404, 'Sorry, we could not find any Movies to display.')
 
-        return ret
+        return jsonify({
+            'movie': movie.format(),
+        })
 
-    '''
-    Register is implemented here
-    '''
+    @app.route('/agents', methods=['GET'])
+    @requires_auth('get:agents')
+    def get_agents(payload):
+        """
+        GET method to fetch all the agents from the database
+        :return: json object containing the paginated agents, and total of agents
+        """
+        agents = Agents.query.order_by(Agents.id).all()
 
-    @app.route('/register', methods=['POST'])
-    def register():
-        req = request.get_json(force=True)
+        if len(agents) == 0:
+            abort(404, 'Sorry, we could not find any Agents.')
 
-        username = req.get('username', None)
-        password = req.get('password', None)
-        repeat_password = req.get('repeat_password', None)
+        return jsonify({
+            'agents': paginate(request, agents),
+            'total_agents': len(agents)
+        })
 
-        user_exists = User.query.filter_by(username=username).first()
+    @app.route('/agent/<int:agent_id>', methods=['GET'])
+    @requires_auth('patch:agents')
+    def get_agent(payload, agent_id):
+        """
+        GET method to fetch the agent based on agent_id passed
+        :param agent_id: the id of the current agent to fetch from the database
+        :return: json object containing the agent in a proper format
+        """
+        agent = Agents.query.filter_by(id=agent_id).first_or_404()
 
-        if len(username) <= 0 or len(password) <= 0 or len(repeat_password) <= 0:
-            abort(400, "cannot submit empty fields")
+        if agent is None:
+            abort(404, 'Sorry, we could not find any Agents to display.')
 
-        if user_exists:
-            abort(400, 'user already registered')
-
-        if password == repeat_password:
-            new_user = User(
-                username=username,
-                hashed_password=guard.hash_password(password),
-                roles='user'
-            )
-            new_user.insert()
-
-            ret = {
-                'registered': True,
-                'status': 200
-            }
-
-        else:
-
-            ret = {
-                'registered': False,
-                'message': 'We could not register your username',
-                'status': 400
-            }
-
-        return ret
-
-    '''
-    Get the categories here
-    '''
+        return jsonify({
+            'movie': agent.format(),
+        })
 
     @app.route('/categories', methods=['GET'])
-    def get_categories():
+    @requires_auth('get:categories')
+    def get_categories(payload):
+        """
+
+        :return:
+        """
         categories = Category.query.order_by(Category.id).all()
 
         if len(categories) == 0:
-            abort(404)
+            abort(404, 'Sorry, we could not find any Categories.')
 
         return jsonify({
-            'categories': categorize(),
+            'categories': paginate(request, categories),
             'total_categories': len(categories)
         })
 
+    @app.route('/category/<int:category_id>', methods=['GET'])
+    @requires_auth('patch:categories')
+    def get_category(payload, category_id):
+        """
+        GET method to fetch the category based on category_id passed
+        :param category_id: the id of the current category to fetch from the database
+        :return: json object containing the category in a proper format
+        """
+        category = Category.query.filter_by(id=category_id).first_or_404()
+
+        if category is None:
+            abort(404, 'Sorry, we could not find any Agents to display.')
+
+        return jsonify({
+            'movie': category.format(),
+        })
+
     '''
-    Add a category here
+    Add an Agent here
+    '''
+
+    @app.route('/actor', methods=['POST'])
+    @requires_auth('post:actors')
+    def new_actor(payload):
+        form = request.get_json(force=True)
+
+        if Actors.query.filter_by(name=form['name']).first() is not None:
+            abort(500, "Agent '{}' already exists...".format(
+                form['name']
+            ))
+
+        try:
+            new_actor = Actors(
+                name=form['name'],
+                gender=form['gender'],
+                age=form['age'],
+                joined_in=form['joined_in'],
+                agent_id=form['agent_id']
+            )
+            new_actor.insert()
+        except Exception as e:
+            print(e)
+            abort(500, e)
+
+        return jsonify({
+            'actor': [new_actor.format()]
+        })
+
+    '''
+    Add an Agent here
+    '''
+
+    @app.route('/agent', methods=['POST'])
+    @requires_auth('post:agents')
+    def new_agent(payload):
+        form = request.get_json(force=True)
+
+        if Agents.query.filter_by(name=form['name']).first() is not None:
+            abort(500, "Agent '{}' already exists...".format(
+                form['name']
+            ))
+
+        try:
+            new_agent = Agents(
+                name=form['name'],
+                joined_in=form['joined_in']
+            )
+            new_agent.insert()
+        except Exception as e:
+            abort(500, e)
+
+        return jsonify({
+            'actor': [new_agent.format()]
+        })
+
+    '''
+    Add a Category here
     '''
 
     @app.route('/category', methods=['POST'])
-    def new_category():
+    @requires_auth('post:categories')
+    def new_category(payload):
         form_category = request.form.get('category')
-        image = request.files
-
-        if 'image' not in image:
-            abort(500, 'No image was selected...')
 
         if Category.query.filter_by(type=form_category).first() is not None:
             abort(500, 'Category {} already exists...'.format(
                 form_category
             ))
 
-        category = Category(type=request.form.get('category'))
-        filename = secure_filename(
-            "{}.{}".format(
-                request.form.get('category').lower(),
-                image['image'].filename.split('.')[-1])
-        )
-
-        category.insert()
-        image['image'].save(os.path.join(UPLOAD_FOLDER, filename))
-
-        return jsonify({
-            'category': form_category,
-            'image': image['image'].filename,
-        })
-
-    '''
-    Get the questions and paginate them
-    '''
-
-    @app.route('/questions', methods=['GET'])
-    def main_questions():
-        sel_questions = Question.query.order_by(Question.id).all()
-        current_questions = paginate(request, sel_questions)
-
-        if len(current_questions) == 0:
-            abort(404)
-
-        return jsonify({
-            'questions': current_questions,
-            'total_questions': len(Question.query.all()),
-            'categories': categorize(),
-            'current_category': {}
-        })
-
-    '''
-    Delete a question here
-    '''
-
-    @app.route('/questions/<int:question_id>', methods=['DELETE'])
-    def remove_question(question_id):
         try:
-            current_question = Question.query.filter_by(id=question_id).first_or_404()
+            category = Category(name=request.form.get('category'))
+            category.insert()
+        except Exception as e:
+            abort(500, e)
 
-            if current_question is None:
+        return jsonify({
+            'category': form_category
+        })
+
+    '''
+    Add a Movie here
+    '''
+
+    @app.route('/movie', methods=['POST'])
+    @requires_auth('post:movies')
+    def new_movie(payload):
+        form = request.get_json(force=True)
+
+        if Movies.query.filter_by(title=form['title']).first() is not None:
+            abort(500, "Movie title '{}' already exists...".format(
+                form['title']
+            ))
+
+        try:
+            new_movie = Movies(
+                title=form['title'],
+                release_date=form['release_date'],
+                rating=form['rating']
+            )
+
+            categories = [Category.query.filter_by(name=category).first() for category in form['categories']]
+            actors = [Actors.query.filter_by(name=actor).first() for actor in form['actors']]
+
+            # As I am not sure how to use 'uselist', this will suffice:
+            for category in categories:
+                new_movie.categories.append(category)
+
+            for actor in actors:
+                new_movie.actors.append(actor)
+
+            new_movie.insert()
+        except Exception as e:
+            abort(500, e)
+
+        return jsonify({
+            'movie': [new_movie.format()]
+        })
+
+    '''
+    Update an Actor here
+    '''
+
+    @app.route('/update/actor/<int:actor_id>', methods=['PATCH'])
+    @requires_auth('patch:actors')
+    def update_actor(payload, actor_id):
+        form = request.get_json(force=True)
+        current_actor = Actors.query.filter_by(id=actor_id).first_or_404()
+
+        if current_actor is None:
+            abort(500, "Agent not found")
+
+        try:
+            current_actor.name = form['name']
+            current_actor.gender = form['gender']
+            current_actor.age = form['age']
+            current_actor.joined_in = form['joined_in']
+            current_actor.agent_id = form['agent_id']
+            current_actor.update()
+        except Exception as e:
+            db.session.rollback()
+            abort(500, e)
+
+        return jsonify({
+            'actor': [current_actor.format()]
+        })
+
+    '''
+    Update an Agent here
+    '''
+
+    @app.route('/update/agent/<int:agent_id>', methods=['PATCH'])
+    @requires_auth('patch:agents')
+    def update_agent(payload, agent_id):
+        form = request.get_json(force=True)
+        current_agent = Agents.query.filter_by(id=agent_id).first_or_404()
+
+        if current_agent is None:
+            abort(500, "Agent not found")
+
+        try:
+            current_agent.name = form['name']
+            current_agent.joined_in = form['joined_in']
+            current_agent.update()
+        except Exception as e:
+            db.session.rollback()
+            abort(500, e)
+
+        return jsonify({
+            'agent': [current_agent.format()]
+        })
+
+    '''
+    Update a Movie here
+    '''
+
+    @app.route('/update/movie/<int:movie_id>', methods=['PATCH'])
+    @requires_auth('patch:movies')
+    def update_movie(payload, movie_id):
+        form = request.get_json(force=True)
+        current_movie = Movies.query.filter_by(id=movie_id).first_or_404()
+
+        if current_movie is None:
+            abort(500, "Movie not found")
+
+        try:
+            current_movie.title = form['title']
+            current_movie.release_date = form['release_date']
+            current_movie.rating = form['rating']
+
+            # must delete the many to many items.
+            categories_delete = MoviesCategories.query.filter_by(movie_id=movie_id)
+            categories_delete.delete()
+
+            actors_delete = MoviesActors.query.filter_by(movie_id=movie_id)
+            actors_delete.delete()
+
+            categories = [Category.query.filter_by(name=category).first() for category in form['categories']]
+            actors = [Actors.query.filter_by(name=actor).first() for actor in form['actors']]
+
+            # As I am not sure how to use 'uselist', this will suffice:
+            for category in categories:
+                current_movie.categories.append(category)
+
+            for actor in actors:
+                current_movie.actors.append(actor)
+
+            current_movie.update()
+        except Exception as e:
+            db.session.rollback()
+            abort(500, e)
+
+        return jsonify({
+            'agent': [current_movie.format()]
+        })
+
+    '''
+    Delete an Actor here
+    '''
+
+    @app.route('/actor/<int:actor_id>', methods=['DELETE'])
+    @requires_auth('delete:actors')
+    def remove_actor(payload, actor_id):
+        try:
+            current_actor = Actors.query.filter_by(id=actor_id).first_or_404()
+            deleted = current_actor.format()
+
+            if current_actor is None:
                 abort(404)
 
-            current_question.delete()
-            sel_questions = Question.query.order_by(Question.id).all()
-            current_questions = paginate(request, sel_questions)
+            current_actor.delete()
+            all_actors = Actors.query.order_by(Actors.id).all()
+            current_actors = paginate(request, all_actors)
 
             return jsonify({
-                'questions': current_questions,
-                'total_questions': len(Question.query.all()),
-                'categories': categorize(),
-                'current_category': {}
+                'deleted': deleted,
+                'actors': current_actors,
+                'total_actors': len(all_actors)
             })
 
-        except:
-            abort(422)
+        except Exception as e:
+            abort(422, e)
 
     '''
-    Create a new question here
+    Delete an Agent here
     '''
 
-    @app.route('/question', methods=['POST'])
-    def new_question():
-        form_request = request.get_json(force=True)
-
-        question = Question(question=form_request['question'],
-                            answer=form_request['answer'],
-                            category=form_request['category'],
-                            difficulty=form_request['difficulty'],
-                            rating=form_request['rating'])
-        question.insert()
-
-        return jsonify({
-            'question': form_request['question'],
-            'answer': form_request['answer'],
-            'category': form_request['category'],
-            'difficulty': form_request['difficulty'],
-            'rating': form_request['rating']
-        })
-
-    '''
-    Search for terms in any question
-    '''
-
-    @app.route('/questions', methods=['POST'])
-    def get_questions():
-        search_term = request.json['searchTerm']
-        search = "%{}%".format(search_term)
-
-        searched_questions = Question.query.filter(
-            Question.question.ilike(search)
-        ).all()
-        current_questions = paginate(request, searched_questions)
-
-        return jsonify({
-            'questions': current_questions,
-            'total_questions': len(searched_questions),
-            'current_category': {}
-        })
-
-    '''
-    Get questions by category
-    '''
-
-    @app.route('/categories/<int:category_id>/questions', methods=['GET'])
-    def get_by_category(category_id):
-        category = Category.query.filter_by(id=category_id).first_or_404()
-        questions = Question.query.filter(Question.category == category.id).all()
-
-        selected_questions = paginate(request, questions)
-
-        return jsonify({
-            'questions': selected_questions,
-            'total_questions': len(questions),
-            'current_category': category.format()
-        })
-
-    '''
-    Play the quiz
-    '''
-
-    @app.route('/quizzes', methods=['POST'])
-    def quizz_time():
-        data = request.get_json(force=True)
-        previous_questions = data['previous_questions']
-        quiz_category = data['quiz_category']
-
-        if quiz_category['id'] == 0:
-            questions_by_category = Question.query.all()
-        else:
-            questions_by_category = Question.query.filter(Question.category == quiz_category['id']).all()
-
-        '''
-        to prevent the "Unable to load questions dialog" and
-        reach the 5 questions per play when we have less than
-        5 questions for a specific category, for example
-        '''
-        if len(questions_by_category) <= len(previous_questions):
-            previous_questions = []
-
-        random_question = random.choice(
-            [question.format() for question in questions_by_category if question.id not in previous_questions]
-        )
-
-        return jsonify({
-            'previousQuestions': previous_questions,
-            'question': random_question
-        })
-
-    '''
-    Save the score of the user
-    '''
-
-    @app.route('/save_score', methods=['POST'])
-    @auth_required
-    def save_score():
-        data = request.get_json(force=True)
-
+    @app.route('/agent/<int:agent_id>', methods=['DELETE'])
+    @requires_auth('delete:agents')
+    def remove_agent(payload, agent_id):
         try:
-            username = data['user']['username']
-            score = data['num_correct']
+            current_agent = Agents.query.filter_by(id=agent_id).first_or_404()
+            deleted = current_agent.format()
 
-            user = User.query.filter_by(username=username).first()
-            if user is None:
-                abort(400)
+            if current_agent is None:
+                abort(404)
 
-            saved_score = Quiz(score=score, user_id=user.id)
-            saved_score.insert()
+            current_agent.delete()
+            all_agents = Agents.query.order_by(Agents.id).all()
+            current_agents = paginate(request, all_agents)
 
-            ret = jsonify({
-                'status': 200,
-                'message': "score saved"
+            return jsonify({
+                'deleted': deleted,
+                'agents': current_agents,
+                'total_agents': len(all_agents)
             })
 
-        except:
-            ret = jsonify({
-                'status': 400,
-                'message': "score could not be saved"
+        except Exception as e:
+            abort(422, e)
+
+    '''
+    Delete a Category here
+    '''
+
+    @app.route('/category/<int:category_id>', methods=['DELETE'])
+    @requires_auth('delete:categories')
+    def remove_category(payload, category_id):
+        try:
+            current_category = Category.query.filter_by(id=category_id).first_or_404()
+            deleted = current_category.format()
+
+            if current_category is None:
+                abort(404)
+
+            current_category.delete()
+            all_categories = Category.query.order_by(Category.id).all()
+            current_categories = paginate(request, all_categories)
+
+            return jsonify({
+                'deleted': deleted,
+                'categories': current_categories,
+                'total_categories': len(all_categories)
             })
 
-        return ret
+        except Exception as e:
+            abort(422, e)
+
+    '''
+    Delete a Movie here
+    '''
+
+    @app.route('/movie/<int:movie_id>', methods=['DELETE'])
+    @requires_auth('delete:movies')
+    def remove_movie(payload, movie_id):
+        try:
+            current_movie = Movies.query.filter_by(id=movie_id).first_or_404()
+            deleted = current_movie.format()
+
+            if current_movie is None:
+                abort(404)
+
+            current_movie.delete()
+            all_movies = Movies.query.order_by(Movies.id).all()
+            current_movies = paginate(request, all_movies)
+
+            return jsonify({
+                'deleted': deleted,
+                'movies': current_movies,
+                'total_movies': len(all_movies)
+            })
+
+        except Exception as e:
+            abort(422, e)
 
     '''
     Error Handlers go here

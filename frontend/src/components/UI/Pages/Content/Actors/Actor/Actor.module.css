@@ -1,0 +1,36 @@
+.Actor {
+    font-size: small;
+    text-align: center;
+}
+
+.Actor td {
+    border-bottom: 1px solid #282c34;
+    padding: 20px;
+    margin: 10px;
+}
+
+.ActorImage {
+    padding: 5px 50px;
+    margin: 10px auto;
+}
+
+.ActorImage img {
+    width: 50px;
+}
+
+.ActorDate {
+    color: dimgray;
+}
+
+.ActorAgent span {
+    display: inline-flex;
+    padding: 0 4px 4px 4px;
+    border: 2px #282c34 solid;
+    border-radius: 10px;
+    color: whitesmoke;
+    background-color: black;
+}
+
+.Icons a {
+    color: #282c34;
+}

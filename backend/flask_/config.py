@@ -4,8 +4,7 @@ import os
 class Config(object):
     SECRET_KEY = os.urandom(24)
     PAGINATION = 10
-    # UPLOAD_FOLDER = '..\\frontend\\public'
-    DB_NAME = "trivia"
+    DB_NAME = "casting"
     SQLALCHEMY_DATABASE_URI = "postgresql://{}:{}@{}/{}".format('postgres', 'postgres', 'localhost:5432',
                                                                 DB_NAME)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -16,8 +15,7 @@ class Config(object):
 class TestConfig(object):
     SECRET_KEY = os.urandom(24)
     PAGINATION = 10
-    # UPLOAD_FOLDER = '..\\frontend\\public'
-    DB_NAME = "trivia_test"
+    DB_NAME = "casting_test"
     SQLALCHEMY_DATABASE_URI = "postgresql://{}:{}@{}/{}".format('postgres', 'postgres', 'localhost:5432',
                                                                 DB_NAME)
     SQLALCHEMY_TRACK_MODIFICATIONS = False

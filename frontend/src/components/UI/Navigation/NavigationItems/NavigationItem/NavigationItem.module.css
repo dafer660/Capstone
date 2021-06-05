@@ -13,13 +13,14 @@
     padding: 10px 10px;
     box-sizing: border-box;
     display: block;
+    cursor: pointer;
 }
 
 .NavigationItem a:hover,
 .NavigationItem a:active,
 .NavigationItem a.active {
-        color: #282c34;
-        border-bottom: 4px solid #95bcf0;
+    color: #282c34;
+    border-bottom: 4px solid #95bcf0;
 }
 
 @media (min-width: 500px) {
@@ -43,5 +44,19 @@
     .NavigationItem a.active {
         color: #282c34;
         border-bottom: 4px solid #95bcf0;
+    }
+
+    .Menu a {
+        color: #95bcf0;
+        text-decoration: none;
+        box-sizing: border-box;
+        display: block;
+        cursor: pointer;
+    }
+
+    .Menu a:hover,
+    .Menu a:active,
+    .Menu a.active {
+        color: #282c34;
     }
 }

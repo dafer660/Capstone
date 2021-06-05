@@ -1,0 +1,54 @@
+.AboutHeader h2 {
+    text-align: center;
+}
+
+.AboutMain {
+    border: 3px #282c34 ridge;
+    border-radius: 10px;
+    padding: 25px;
+    margin: 25px;
+    background-color: #f2f3ff;
+}
+
+.AboutImg {
+    margin: 25px 25px 0 0;
+}
+
+.AboutImg img {
+    float: left;
+    margin: 0 25px 0 0;
+    border: 3px #282c34 solid;
+    width: 125px;
+}
+
+.AboutInfo p {
+    text-align: justify;
+    text-align-all: justify;
+}
+
+.AboutInfo span {
+    color: #282c34;
+    background-color: moccasin;
+    border-radius: 5px;
+    padding: 0 3px 0 3px;
+    font: oblique bold 14px Arial;
+}
+
+.AboutInfo span:hover {
+    color: #044599;
+    background-color: moccasin;
+}
+
+.AboutInfo a {
+    color: #282c34;
+    text-decoration: none;
+}
+
+.AboutInfo a:hover {
+    color: #044599;
+    background-color: moccasin;
+}
+
+.AboutBeer {
+    width: 25px;
+}

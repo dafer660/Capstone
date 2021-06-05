@@ -6,6 +6,7 @@ import Logo from "../../../Logo/Logo";
 import NavigationItems from "../NavigationItems/NavigationItems";
 
 const Toolbar = (props) => {
+
     return (
         <header className={styleToolbar.Toolbar}>
             <div className={styleToolbar.Logo}><Logo/></div>
@@ -16,4 +17,4 @@ const Toolbar = (props) => {
     )
 }
 
-export default Toolbar
+export default Toolbar;
