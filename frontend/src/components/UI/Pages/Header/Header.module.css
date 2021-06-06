@@ -1,6 +1,6 @@
 .Header {
     grid-area: header;
-    max-height: 100px;
+    min-height: 70px;
     border-bottom: 3px #282c34 solid;
     margin: auto;
     width: 50%;

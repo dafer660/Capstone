@@ -1,8 +1,8 @@
 import React from 'react'
+import {useAuth0, withAuth0} from '@auth0/auth0-react';
 
 import styleNavItems from './NavigationItems.module.css'
 import NavigationItem from "./NavigationItem/NavigationItem";
-import Search from "../Search/Search";
 import LoginButton from "../../../Auth/Login/Login";
 import LogoutButton from "../../../Auth/Logout/Logout";
 import {Menu, MenuItem} from "@material-ui/core";
@@ -32,30 +32,42 @@ class NavigationItems extends React.Component {
 
     render() {
 
+        const {
+            isAuthenticated,
+        } = this.props.auth0;
+
         return (
             <ul className={styleNavItems.NavigationItems}>
-                {/*<Search/>*/}
-                <NavigationItem renderItem={'menuAdm'} onClick={this.handleClick}>
-                    Data
-                </NavigationItem>
-                <Menu
-                    id="NavbarMenu"
-                    anchorEl={this.state.anchor}
-                    keepMounted
-                    open={Boolean(this.state.anchor)}
-                    onClose={this.handleClose}
-                    className={styleNavItems.Menu}
-                >
-                    <NavLink to={'/actors'} activeClassName={styleNavItems.active}>
-                        <MenuItem onClick={this.handleClose}>Actors</MenuItem>
-                    </NavLink>
-                    <NavLink to={'/agents'} activeClassName={styleNavItems.active}>
-                        <MenuItem onClick={this.handleClose}>Agents</MenuItem>
-                    </NavLink>
-                    <NavLink to={'/movies'} activeClassName={styleNavItems.active}>
-                        <MenuItem onClick={this.handleClose}>Movies</MenuItem>
-                    </NavLink>
-                </Menu>
+                {
+                    isAuthenticated ?
+                        <>
+                            <NavigationItem renderItem={'menuAdm'} onClick={this.handleClick}>
+                                Data
+                            </NavigationItem>
+                            <Menu
+                                id="NavbarMenu"
+                                anchorEl={this.state.anchor}
+                                keepMounted
+                                open={Boolean(this.state.anchor)}
+                                onClose={this.handleClose}
+                                className={styleNavItems.Menu}
+                            >
+                                <NavLink to={'/actors'} activeClassName={styleNavItems.active}>
+                                    <MenuItem onClick={this.handleClose}>Actors</MenuItem>
+                                </NavLink>
+                                <NavLink to={'/agents'} activeClassName={styleNavItems.active}>
+                                    <MenuItem onClick={this.handleClose}>Agents</MenuItem>
+                                </NavLink>
+                                <NavLink to={'/categories'} activeClassName={styleNavItems.active}>
+                                    <MenuItem onClick={this.handleClose}>Categories</MenuItem>
+                                </NavLink>
+                                <NavLink to={'/movies'} activeClassName={styleNavItems.active}>
+                                    <MenuItem onClick={this.handleClose}>Movies</MenuItem>
+                                </NavLink>
+                            </Menu>
+                        </>
+                        :
+                        ''}
                 <NavigationItem url={'/about'}>About
                 </NavigationItem>
                 <LoginButton>
@@ -69,4 +81,4 @@ class NavigationItems extends React.Component {
     }
 }
 
-export default NavigationItems
+export default withAuth0(NavigationItems)

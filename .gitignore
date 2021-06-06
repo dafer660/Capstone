@@ -5,6 +5,7 @@ venv
 node_modules
 pip
 migrations
+docs and urls
 
 # OS generated files #
 ######################

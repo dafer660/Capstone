@@ -73,12 +73,6 @@ class About extends Component {
                             </p>
                         </div>
                     </div>
-                    <a href={"https://www.linkedin.com/in/daniel-f-684b3666"}
-                       title={'LinkedIn Profile'}
-                       target="_blank"
-                       rel="noopener noreferrer">
-                    </a>
-
                 </Main>
             </Pages>
         )

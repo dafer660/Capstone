@@ -165,6 +165,9 @@ class FormCategory extends Component {
                 }
             )
         };
+        console.log(permissions)
+        console.log(payload)
+
         if (permissions) {
             fetch(`http://localhost:5000${url}`, requestOptions)
                 .then((result) => {

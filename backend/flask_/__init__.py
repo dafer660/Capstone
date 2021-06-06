@@ -14,7 +14,7 @@ migrate = Migrate()
 
 def paginate(request, selection):
     """
-
+    Function that handles pagination
     :param request: request passed used to get the current page
     :param selection: the object from the database to paginate
     :return: the paginated object, containing a list with the formatted objects
@@ -49,6 +49,11 @@ def create_app(config_file=Config):
     # Just do CORS stuff here before request
     @app.after_request
     def after_request(response):
+        """
+        Function that handles CORS
+        :param response: response header
+        :return: returns the response with CORS headers
+        """
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
         response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
         response.headers.add('Access-Control-Allow-Credentials', 'true')
@@ -166,8 +171,8 @@ def create_app(config_file=Config):
     @requires_auth('get:categories')
     def get_categories(payload):
         """
-
-        :return:
+        GET method to fetch the categories and paginate them
+        :return: json object containing all categories and total categories
         """
         categories = Category.query.order_by(Category.id).all()
 
@@ -185,7 +190,7 @@ def create_app(config_file=Config):
         """
         GET method to fetch the category based on category_id passed
         :param category_id: the id of the current category to fetch from the database
-        :return: json object containing the category in a proper format
+        :return: json object containing the category
         """
         category = Category.query.filter_by(id=category_id).first_or_404()
 
@@ -196,13 +201,14 @@ def create_app(config_file=Config):
             'category': category.format(),
         })
 
-    '''
-    Add an Agent here
-    '''
-
     @app.route('/actor', methods=['POST'])
     @requires_auth('post:actors')
     def new_actor(payload):
+        """
+        Add an Actor here
+        :param payload:
+        :return:
+        """
         form = request.get_json(force=True)
 
         if Actors.query.filter_by(name=form['name']).first() is not None:
@@ -227,13 +233,14 @@ def create_app(config_file=Config):
             'actor': [new_actor.format()]
         })
 
-    '''
-    Add an Agent here
-    '''
-
     @app.route('/agent', methods=['POST'])
     @requires_auth('post:agents')
     def new_agent(payload):
+        """
+        Add an Agent here
+        :param payload:
+        :return:
+        """
         form = request.get_json(force=True)
 
         if Agents.query.filter_by(name=form['name']).first() is not None:
@@ -254,41 +261,45 @@ def create_app(config_file=Config):
             'actor': [new_agent.format()]
         })
 
-    '''
-    Add a Category here
-    '''
-
     @app.route('/category', methods=['POST'])
     @requires_auth('post:categories')
     def new_category(payload):
-        form_category = request.form.get('category')
+        """
+        Add a Category here
+        :param payload:
+        :return:
+        """
+        form = request.get_json(force=True)
 
-        if Category.query.filter_by(type=form_category).first() is not None:
+        if Category.query.filter_by(name=form['name']).first() is not None:
             abort(500, 'Category {} already exists...'.format(
-                form_category
+                form['name']
             ))
 
         try:
-            category = Category(name=request.form.get('category'))
-            category.insert()
+            new_category = Category(
+                name=form['name']
+            )
+            new_category.insert()
         except Exception as e:
             abort(500, e)
 
         return jsonify({
-            'category': form_category
+            'category': [new_category.format()]
         })
-
-    '''
-    Add a Movie here
-    '''
 
     @app.route('/movie', methods=['POST'])
     @requires_auth('post:movies')
     def new_movie(payload):
+        """
+        Add a Movie here
+        :param payload:
+        :return:
+        """
         form = request.get_json(force=True)
 
         if Movies.query.filter_by(title=form['title']).first() is not None:
-            abort(500, "Movie title '{}' already exists...".format(
+            abort(500, "Category title '{}' already exists...".format(
                 form['title']
             ))
 
@@ -317,13 +328,15 @@ def create_app(config_file=Config):
             'movie': [new_movie.format()]
         })
 
-    '''
-    Update an Actor here
-    '''
-
     @app.route('/update/actor/<int:actor_id>', methods=['PATCH'])
     @requires_auth('patch:actors')
     def update_actor(payload, actor_id):
+        """
+        Update an Actor here
+        :param payload:
+        :param actor_id:
+        :return:
+        """
         form = request.get_json(force=True)
         current_actor = Actors.query.filter_by(id=actor_id).first_or_404()
 
@@ -345,13 +358,15 @@ def create_app(config_file=Config):
             'actor': [current_actor.format()]
         })
 
-    '''
-    Update an Agent here
-    '''
-
     @app.route('/update/agent/<int:agent_id>', methods=['PATCH'])
     @requires_auth('patch:agents')
     def update_agent(payload, agent_id):
+        """
+        Update an Agent here
+        :param payload:
+        :param agent_id:
+        :return:
+        """
         form = request.get_json(force=True)
         current_agent = Agents.query.filter_by(id=agent_id).first_or_404()
 
@@ -370,13 +385,15 @@ def create_app(config_file=Config):
             'agent': [current_agent.format()]
         })
 
-    '''
-    Update an Agent here
-    '''
-
     @app.route('/update/category/<int:category_id>', methods=['PATCH'])
     @requires_auth('patch:categories')
     def update_category(payload, category_id):
+        """
+        Update a Category here
+        :param payload:
+        :param category_id:
+        :return:
+        """
         form = request.get_json(force=True)
         current_category = Category.query.filter_by(id=category_id).first_or_404()
 
@@ -394,18 +411,20 @@ def create_app(config_file=Config):
             'category': [current_category.format()]
         })
 
-    '''
-    Update a Movie here
-    '''
-
     @app.route('/update/movie/<int:movie_id>', methods=['PATCH'])
     @requires_auth('patch:movies')
     def update_movie(payload, movie_id):
+        """
+        Update a Movie here
+        :param payload:
+        :param movie_id:
+        :return:
+        """
         form = request.get_json(force=True)
         current_movie = Movies.query.filter_by(id=movie_id).first_or_404()
 
         if current_movie is None:
-            abort(500, "Movie not found")
+            abort(500, "Category not found")
 
         try:
             current_movie.title = form['title']
@@ -438,13 +457,15 @@ def create_app(config_file=Config):
             'agent': [current_movie.format()]
         })
 
-    '''
-    Delete an Actor here
-    '''
-
     @app.route('/actor/<int:actor_id>', methods=['DELETE'])
     @requires_auth('delete:actors')
     def remove_actor(payload, actor_id):
+        """
+        Delete an Actor here
+        :param payload:
+        :param actor_id:
+        :return:
+        """
         try:
             current_actor = Actors.query.filter_by(id=actor_id).first_or_404()
             deleted = current_actor.format()
@@ -465,13 +486,15 @@ def create_app(config_file=Config):
         except Exception as e:
             abort(422, e)
 
-    '''
-    Delete an Agent here
-    '''
-
     @app.route('/agent/<int:agent_id>', methods=['DELETE'])
     @requires_auth('delete:agents')
     def remove_agent(payload, agent_id):
+        """
+        Delete an Agent here
+        :param payload:
+        :param agent_id:
+        :return:
+        """
         try:
             current_agent = Agents.query.filter_by(id=agent_id).first_or_404()
             deleted = current_agent.format()
@@ -492,13 +515,15 @@ def create_app(config_file=Config):
         except Exception as e:
             abort(422, e)
 
-    '''
-    Delete a Category here
-    '''
-
     @app.route('/category/<int:category_id>', methods=['DELETE'])
     @requires_auth('delete:categories')
     def remove_category(payload, category_id):
+        """
+        Delete a Category here
+        :param payload:
+        :param category_id:
+        :return:
+        """
         try:
             current_category = Category.query.filter_by(id=category_id).first_or_404()
             deleted = current_category.format()
@@ -519,13 +544,15 @@ def create_app(config_file=Config):
         except Exception as e:
             abort(422, e)
 
-    '''
-    Delete a Movie here
-    '''
-
     @app.route('/movie/<int:movie_id>', methods=['DELETE'])
     @requires_auth('delete:movies')
     def remove_movie(payload, movie_id):
+        """
+        Delete a Movie here
+        :param payload:
+        :param movie_id:
+        :return:
+        """
         try:
             current_movie = Movies.query.filter_by(id=movie_id).first_or_404()
             deleted = current_movie.format()

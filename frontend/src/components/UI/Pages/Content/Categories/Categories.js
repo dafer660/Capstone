@@ -3,28 +3,27 @@ import ReactPaginate from "react-paginate";
 import {Link} from "react-router-dom";
 import {withAuth0} from "@auth0/auth0-react";
 
-import Pages from "../../Pages";
-import Header from "../../Header/Header";
-import Main from "../../Main/Main";
-import Movie from "./Movie/Movie";
-import Loading from "../../../../../hoc/Loading/Loading";
-
-
-import classes from "./Movies.module.css";
 import Alert from '@material-ui/lab/Alert';
 import {Snackbar} from "@material-ui/core";
 
-export class Movies extends Component {
+import Pages from "../../Pages";
+import Header from "../../Header/Header";
+import Main from "../../Main/Main";
+import Category from "./Category/Category";
+import Loading from "../../../../../hoc/Loading/Loading";
+
+import classes from "./Categories.module.css";
+
+export class Categories extends Component {
 
     constructor(props) {
         super(props);
 
         this.state = {
-            allMovies: [],
-            latestMovies: [],
-            currentMovies: [],
+            allCategories: [],
+            currentCategories: [],
             currentPage: 1,
-            totalMovies: 0,
+            totalCategories: 0,
             pageCount: 0,
             offset: 0,
             user: null,
@@ -36,12 +35,12 @@ export class Movies extends Component {
     }
 
     componentDidMount() {
-        this.getMovies()
+        this.getCategories()
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevState.totalMovies > this.state.totalMovies) {
-            this.getMovies();
+        if (prevState.totalCategories > this.state.totalCategories) {
+            this.getCategories();
         }
 
         if (prevProps.user !== this.state.user && this.props.user !== this.state.user) {
@@ -79,15 +78,15 @@ export class Movies extends Component {
     }
 
     handleDelete = (id) => {
-        // permission: 'delete:movies'
+        // permission: 'delete:categories'
         let token = sessionStorage.getItem('token')
         let payload, permissions
 
         payload = this.props.handleGetPayload(token)
-        permissions = this.props.handleCan('delete:movies', payload)
+        permissions = this.props.handleCan('delete:categories', payload)
         if (permissions) {
             if (window.confirm('are you sure you want to delete the selected Category?')) {
-                fetch(`http://localhost:5000/movie/${id}`, {
+                fetch(`http://localhost:5000/category/${id}`, {
                     method: 'DELETE',
                     headers: {
                         Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -100,11 +99,11 @@ export class Movies extends Component {
                     })
                     .then((json) => {
                         this.setState({
-                            allMovies: json.movies,
-                            totalMovies: json.total_movies,
-                            pageCount: Math.ceil(json.total_movies / 10)
+                            allCategories: json.categories,
+                            totalCategories: json.total_categories,
+                            pageCount: Math.ceil(json.total_categories / 10)
                         })
-                        this.handleOpen('success', `Movie ${json.deleted.title} has been deleted.`);
+                        this.handleOpen('success', `Category ${json.deleted.name} has been deleted.`);
                     })
                     .catch((error) => {
                         return;
@@ -121,20 +120,20 @@ export class Movies extends Component {
         let offset = Math.ceil(selected * 10);
 
         this.setState({offset: offset, currentPage: selected + 1}, () => {
-            this.getMovies();
+            this.getCategories();
         });
     };
 
-    getMovies = async () => {
-        // permission: 'get:movies'
+    getCategories = async () => {
+        // permission: 'get:categories'
         let token = sessionStorage.getItem('token')
         let payload, permissions
 
         payload = this.props.handleGetPayload(token)
-        permissions = this.props.handleCan('get:movies', payload)
+        permissions = this.props.handleCan('get:categories', payload)
 
         if (permissions) {
-            fetch(`http://localhost:5000/movies?page=${this.state.currentPage}&limit=${10}&offset=${this.state.offset}`, {
+            fetch(`http://localhost:5000/categories?page=${this.state.currentPage}&limit=${10}&offset=${this.state.offset}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -147,9 +146,9 @@ export class Movies extends Component {
                 })
                 .then((json) => {
                     this.setState({
-                        allMovies: json.movies,
-                        totalMovies: json.total_movies,
-                        pageCount: Math.ceil(json.total_movies / 10)
+                        allCategories: json.categories,
+                        totalCategories: json.total_categories,
+                        pageCount: Math.ceil(json.total_categories / 10)
                     })
                 })
                 .catch((error) => {
@@ -185,10 +184,10 @@ export class Movies extends Component {
                         </Snackbar>
                     </div>
                     <Header>
-                        <div className={classes.MoviesHeader}>
-                            <h2>Movies
-                                {this.props.handleCan('post:movies', payload) ?
-                                    <Link to={"/new-movie"} title={'Add a Category'}>
+                        <div className={classes.CategoriesHeader}>
+                            <h2>Categories
+                                {this.props.handleCan('post:categories', payload) ?
+                                    <Link to={"/new-category"} title={'Add a Category'}>
                                         &#43;
                                     </Link> :
                                     ''}
@@ -196,42 +195,37 @@ export class Movies extends Component {
                         </div>
                     </Header>
                     <Main>
-                        <div className={classes.MoviesMain}>
+                        <div className={classes.CategoriesMain}>
                             <div>
-                                {this.state.totalMovies > 0 ? (
+                                {this.state.totalCategories > 0 ? (
                                         <table>
                                             <thead>
                                             <tr>
                                                 <th></th>
-                                                <th>Title</th>
-                                                <th>Rating</th>
-                                                <th>Categories</th>
+                                                <th>Name</th>
                                                 <th></th>
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            {this.state.allMovies.map((key, idx) => (
-                                                <Movie
+                                            {this.state.allCategories.map((key, idx) => (
+                                                <Category
                                                     key={key.id}
-                                                    title={key.title}
-                                                    release_date={key.release_date}
-                                                    rating={key.rating}
-                                                    categories={key.categories}
-                                                    editMovie={key.id}
+                                                    name={key.name}
+                                                    editCategory={key.id}
                                                     handleDelete={() => this.handleDelete(key.id)}
-                                                    canDelete={this.props.handleCan('delete:movies', payload)}
-                                                    canEdit={this.props.handleCan('patch:movies', payload)}
+                                                    canDelete={this.props.handleCan('delete:categories', payload)}
+                                                    canEdit={this.props.handleCan('patch:categories', payload)}
                                                 />
                                             ))}
                                             </tbody>
                                         </table>
                                     ) :
-                                    <p>There are no Movies to display</p>
+                                    <p>There are no Categories to display</p>
                                 }
                             </div>
                         </div>
                         <div>
-                            {this.state.totalMovies > 10 ? <ReactPaginate
+                            {this.state.totalCategories > 10 ? <ReactPaginate
                                 previousLabel={'← Previous'}
                                 nextLabel={'Next →'}
                                 breakLabel={'...'}
@@ -255,4 +249,4 @@ export class Movies extends Component {
     }
 }
 
-export default withAuth0(Movies);
+export default withAuth0(Categories);

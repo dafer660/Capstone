@@ -1,7 +1,8 @@
 import {
     BrowserRouter as Router,
     Route,
-    Switch
+    Switch,
+    Redirect
 } from 'react-router-dom'
 
 import {Component} from "react";
@@ -12,16 +13,19 @@ import Toolbar from "./components/UI/Navigation/Toolbar/Toolbar";
 import Auxiliary from "./hoc/Auxiliary/Auxiliary";
 import Homepage from "./components/UI/Pages/Content/Homepage/Homepage";
 import Actors from "./components/UI/Pages/Content/Actors/Actors";
+import Agents from "./components/UI/Pages/Content/Agents/Agents";
+import Categories from "./components/UI/Pages/Content/Categories/Categories";
 import Movies from "./components/UI/Pages/Content/Movies/Movies";
 import About from "./components/UI/Pages/Content/About/About";
 import Layout from "./hoc/Layout/Layout";
 import FormActor from "./components/Forms/FormActors/FormActor";
 import FormMovie from "./components/Forms/FormMovies/FormMovie";
 import FormAgent from "./components/Forms/FormAgents/FormAgent";
-import Agents from "./components/UI/Pages/Content/Agents/Agents";
+import FormCategory from "./components/Forms/FormCategories/FormCategory";
+
 import Loading from "./hoc/Loading/Loading";
 import ProtectedRoute from "./components/Auth/ProtectedRoute/ProtectedRoute";
-import FormCategory from "./components/Forms/FormCategories/FormCategory";
+
 
 class App extends Component {
     constructor(props) {
@@ -74,7 +78,6 @@ class App extends Component {
             && payload.permissions.indexOf(permission) >= 0;
     }
 
-
     render() {
         const {isLoading, isAuthenticated} = this.props.auth0;
 
@@ -103,14 +106,6 @@ class App extends Component {
                                                                           handleToken={this.handleGetToken}
                                                                           handleGetPayload={this.handleGetPayload}
                                                                           handleCan={this.handleCan}/>}/>
-                            <ProtectedRoute path="/movies"
-                                            component={(props) => <Movies {...props}
-                                                                          user={this.state.user}
-                                                                          permissions={this.state.permissions}
-                                                                          token={this.state.token}
-                                                                          handleToken={this.handleGetToken}
-                                                                          handleGetPayload={this.handleGetPayload}
-                                                                          handleCan={this.handleCan}/>}/>
                             <ProtectedRoute path="/agents"
                                             component={(props) => <Agents {...props}
                                                                           user={this.state.user}
@@ -119,8 +114,22 @@ class App extends Component {
                                                                           handleToken={this.handleGetToken}
                                                                           handleGetPayload={this.handleGetPayload}
                                                                           handleCan={this.handleCan}/>}/>
-                            <Route path="/about"
-                                   component={(props) => <About/>}/>
+                            <ProtectedRoute path="/categories"
+                                            component={(props) => <Categories {...props}
+                                                                              user={this.state.user}
+                                                                              permissions={this.state.permissions}
+                                                                              token={this.state.token}
+                                                                              handleToken={this.handleGetToken}
+                                                                              handleGetPayload={this.handleGetPayload}
+                                                                              handleCan={this.handleCan}/>}/>
+                            <ProtectedRoute path="/movies"
+                                            component={(props) => <Movies {...props}
+                                                                          user={this.state.user}
+                                                                          permissions={this.state.permissions}
+                                                                          token={this.state.token}
+                                                                          handleToken={this.handleGetToken}
+                                                                          handleGetPayload={this.handleGetPayload}
+                                                                          handleCan={this.handleCan}/>}/>
                             <ProtectedRoute path="/new-actor"
                                             component={(props) => <FormActor {...props}
                                                                              formCreate
@@ -201,7 +210,8 @@ class App extends Component {
                                                                                 handleToken={this.handleGetToken}
                                                                                 handleGetPayload={this.handleGetPayload}
                                                                                 handleCan={this.handleCan}/>}/>
-                            <Route component={(props) => <Homepage/>}/>
+                            <Route path="/about" component={(props) => <About/>}/>
+                            <Route render={() => <Redirect to={{pathname: "/"}} />} />
                         </Switch>
                     </Layout>
                 </Router>

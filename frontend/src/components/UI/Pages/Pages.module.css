@@ -4,7 +4,7 @@
     grid-template-areas:
     "header header header"
     "main main main";
-    margin: 70px 20px;
+    margin: 70px 20px 70px 20px;
 }
 
 
