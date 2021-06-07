@@ -7,8 +7,6 @@ import {withRouter} from "react-router-dom";
 
 import {Button, Snackbar, TextField} from '@material-ui/core';
 import Moment from "moment";
-import {FormErrors} from "../Errors/Errors";
-import {string} from "prop-types";
 import Alert from "@material-ui/lab/Alert";
 
 
@@ -118,7 +116,7 @@ class FormAgent extends Component {
         permissions = this.props.handleCan('get:agents', payload)
 
         if (permissions) {
-            fetch(`http://localhost:5000/agent/${id}`, {
+            fetch(`${process.env.REACT_APP_API_URI}/agent/${id}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -180,7 +178,7 @@ class FormAgent extends Component {
             )
         };
         if (permissions) {
-            fetch(`http://localhost:5000${url}`, requestOptions)
+            fetch(`${process.env.REACT_APP_API_URI}${url}`, requestOptions)
                 .then((result) => {
                     if (result.status === 200) {
                         this.props.history.push('/agents');

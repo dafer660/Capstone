@@ -92,7 +92,7 @@ export class Categories extends Component {
         permissions = this.props.handleCan('delete:categories', payload)
         if (permissions) {
             if (window.confirm('are you sure you want to delete the selected Category?')) {
-                fetch(`http://localhost:5000/category/${id}`, {
+                fetch(`${process.env.REACT_APP_API_URI}/category/${id}`, {
                     method: 'DELETE',
                     headers: {
                         Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -131,7 +131,7 @@ export class Categories extends Component {
         permissions = this.props.handleCan('get:categories', payload)
 
         if (permissions) {
-            fetch(`http://localhost:5000/categories?page=${this.state.currentPage}&limit=${10}&offset=${this.state.offset}`, {
+            fetch(`${process.env.REACT_APP_API_URI}/categories?page=${this.state.currentPage}&limit=${10}&offset=${this.state.offset}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')

@@ -3,12 +3,9 @@ import Header from "../../UI/Pages/Header/Header";
 import Main from "../../UI/Pages/Main/Main";
 import Pages from "../../UI/Pages/Pages";
 import classes from "./FormCategory.module.css";
-import {Link, withRouter} from "react-router-dom";
+import {withRouter} from "react-router-dom";
 
 import {Button, Snackbar, TextField} from '@material-ui/core';
-import Moment from "moment";
-import {FormErrors} from "../Errors/Errors";
-import {string} from "prop-types";
 import Alert from "@material-ui/lab/Alert";
 
 
@@ -106,7 +103,7 @@ class FormCategory extends Component {
         payload = this.props.handleGetPayload(token)
         permissions = this.props.handleCan('patch:category', payload)
         if (permissions) {
-            fetch(`http://localhost:5000/category/${id}`, {
+            fetch(`${process.env.REACT_APP_API_URI}/category/${id}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -166,7 +163,7 @@ class FormCategory extends Component {
             )
         };
         if (permissions) {
-            fetch(`http://localhost:5000${url}`, requestOptions)
+            fetch(`${process.env.REACT_APP_API_URI}${url}`, requestOptions)
                 .then((result) => {
                     if (result.status === 200) {
                         this.props.history.push('/categories');
@@ -218,7 +215,6 @@ class FormCategory extends Component {
                     </div>
                 </Main>
             </Pages>
-
         )
     }
 }

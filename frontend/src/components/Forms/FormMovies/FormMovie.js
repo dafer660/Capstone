@@ -3,7 +3,7 @@ import Header from "../../UI/Pages/Header/Header";
 import Main from "../../UI/Pages/Main/Main";
 import Pages from "../../UI/Pages/Pages";
 import classes from "./FormMovie.module.css";
-import {Link, withRouter} from "react-router-dom";
+import {withRouter} from "react-router-dom";
 
 import {Button, TextField, Select, MenuItem, Checkbox, ListItemText, Input, Snackbar} from '@material-ui/core';
 import Moment from "moment";
@@ -151,7 +151,7 @@ class FormMovie extends Component {
         permissions = this.props.handleCan('get:actors', payload)
 
         if (permissions) {
-            fetch(`http://localhost:5000/actors`, {
+            fetch(`${process.env.REACT_APP_API_URI}/actors`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -189,7 +189,7 @@ class FormMovie extends Component {
         permissions = this.props.handleCan('get:movies', payload)
 
         if (permissions) {
-            fetch(`http://localhost:5000/movie/${id}`, {
+            fetch(`${process.env.REACT_APP_API_URI}/movie/${id}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -221,7 +221,7 @@ class FormMovie extends Component {
         payload = this.props.handleGetPayload(token)
         permissions = this.props.handleCan('get:categories', payload)
         if (permissions) {
-            fetch('http://localhost:5000/categories', {
+            fetch('${process.env.REACT_APP_API_URI}/categories', {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -290,7 +290,7 @@ class FormMovie extends Component {
             )
         };
         if (permissions) {
-            fetch(`http://localhost:5000${url}`, requestOptions)
+            fetch(`${process.env.REACT_APP_API_URI}${url}`, requestOptions)
                 .then((result) => {
                     if (result.status === 200) {
                         this.props.history.push('/movies');
