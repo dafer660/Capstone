@@ -1,0 +1,35 @@
+.Logo {
+    margin: 0 1rem;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    width: auto;
+    /*Use below if img logo*/
+    /*background-color: mediumseagreen;*/
+    /*padding: 2px;*/
+    /*height: 100%;*/
+    /*box-sizing: border-box;*/
+    /*border-radius: 5px;*/
+}
+
+.Logo img {
+    height: 100%;
+}
+
+/*Remove these below if using img logo*/
+.Logo a {
+    color: #95bcf0;
+    text-decoration: none;
+    width: 100%;
+    padding: 10px 10px;
+    box-sizing: border-box;
+    display: block;
+    cursor: pointer;
+}
+
+.Logo a:hover,
+.Logo a:active,
+.Logo a.active {
+    color: #282c34;
+    border-bottom: 4px solid #95bcf0;
+}

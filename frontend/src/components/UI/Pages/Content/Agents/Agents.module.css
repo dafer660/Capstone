@@ -1,0 +1,101 @@
+.Agents {
+}
+
+.AgentsHeader {
+    display: block;
+    text-align: center;
+}
+
+.AgentsHeader a {
+    text-align: center;
+    color: #282c34;
+    text-decoration: none;
+    border: 2px #282c34 solid;
+    border-radius: 4px;
+    padding: 0 4px 4px 4px;
+    margin: 10px;
+}
+
+.AgentsHeader a:hover {
+    color: #61dafb;
+    background-color: #282c34;
+}
+
+.AgentsMain {
+    margin: 50px auto 40px auto;
+    display: block;
+    align-items: center;
+}
+
+.AgentsMain div {
+    display: flex;
+    justify-content: center;
+}
+
+.AgentsMain table {
+    align-self: center;
+    border: 2px solid black;
+    border-collapse: collapse;
+}
+
+.AgentsMain img {
+    width: 50px;
+}
+
+.AgentsMain th {
+    background-color: #191970;
+    color: white;
+    padding: 20px;
+    margin: 10px;
+}
+
+.AgentsMain td {
+    border-bottom: 1px solid #282c34;
+    padding: 20px;
+    margin: 10px;
+}
+
+.AgentsMain tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.AgentsMain h4 {
+    text-align: center;
+}
+
+
+.Paginate {
+    justify-content: center;
+    display: flex;
+    list-style: none;
+    cursor: pointer;
+}
+
+.Paginate li {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 1px solid #6c7ac9;
+    color: #282c34;
+}
+
+.PaginateLink {
+    font-weight: bold;
+    color: #282c34;
+}
+
+.PaginateLink:hover:not(.PaginateDisabled):not(.PaginateActive) {
+    color: #282c34;
+    background-color: #6c7ac9;
+}
+
+
+.PaginateActive {
+    background-color: #6c7ac9;
+}
+
+.PaginateDisabled {
+    background-color: rgb(221, 222, 235);
+    border: 1px solid rgb(16, 28, 61);
+}
+
