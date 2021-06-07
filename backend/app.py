@@ -42,25 +42,25 @@ def create_app(config_file=Config):
     app.config.from_object(config_file)
 
     db.init_app(app=app)
-    cors.init_app(app, resources={r"*": {"origins": "*"}})
+    # cors.init_app(app, resources={r"*": {"origins": "*"}})
     migrate.init_app(app=app, db=db)
 
     with app.app_context():
         setup_db(app)
 
     # Just do CORS stuff here before request
-    @app.after_request
-    def after_request(response):
-        """
-        Function that handles CORS
-        :param response: response header
-        :return: returns the response with CORS headers
-        """
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-
-        return response
+    # @app.after_request
+    # def after_request(response):
+    #     """
+    #     Function that handles CORS
+    #     :param response: response header
+    #     :return: returns the response with CORS headers
+    #     """
+    #     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+    #     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    #     response.headers.add('Access-Control-Allow-Credentials', 'true')
+    #
+    #     return response
 
     @app.route('/')
     def index():
