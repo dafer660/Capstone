@@ -20,11 +20,6 @@ def setup_db(app):
     db.create_all()
 
 
-'''
-Movies
-'''
-
-
 class Movies(db.Model):
     __tablename__ = 'movies'
 
@@ -67,11 +62,6 @@ class Movies(db.Model):
         }
 
 
-'''
-Category
-'''
-
-
 class Category(db.Model):
     __tablename__ = 'categories'
 
@@ -97,11 +87,6 @@ class Category(db.Model):
             'id': self.id,
             'name': self.name
         }
-
-
-'''
-Actors
-'''
 
 
 class Actors(db.Model):
@@ -152,11 +137,6 @@ class Actors(db.Model):
         }
 
 
-'''
-MoviesActors
-'''
-
-
 class MoviesActors(db.Model):
     __tablename__ = 'movies_actors'
 
@@ -172,11 +152,6 @@ class MoviesActors(db.Model):
         db.session.commit()
 
 
-'''
-MoviesCategories
-'''
-
-
 class MoviesCategories(db.Model):
     __tablename__ = 'movies_categories'
 
@@ -190,11 +165,6 @@ class MoviesCategories(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
-
-
-'''
-Agents
-'''
 
 
 class Agents(db.Model):

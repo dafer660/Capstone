@@ -49,9 +49,20 @@
     margin: 10px;
 }
 
+.CategoriesMain td {
+    border-bottom: 1px solid #282c34;
+    padding: 20px;
+    margin: 10px;
+}
+
 .CategoriesMain tr:nth-child(even) {
     background-color: #f2f2f2;
 }
+
+.CategoriesMain h4 {
+    text-align: center;
+}
+
 
 .Paginate {
     justify-content: center;

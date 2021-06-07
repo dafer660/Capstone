@@ -1,11 +1,11 @@
-from flask import Flask, request, abort, jsonify, make_response
+from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 
-from .config import TestConfig, Config
-from .models import setup_db, Movies, Actors, Category, MoviesCategories, MoviesActors, Agents
-from .auth import requires_auth
+from config import TestConfig, Config
+from models import setup_db, Movies, Actors, Category, MoviesCategories, MoviesActors, Agents
+from auth import requires_auth
 
 db = SQLAlchemy()
 cors = CORS()
@@ -35,7 +35,7 @@ def create_app(config_file=Config):
     :param config_file: a config file, which you can setup in the config.py file - defaults to Config
     :return: returns the flask app
     """
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='./build', static_url_path='/')
 
     app.config.from_object(config_file)
 
@@ -59,6 +59,10 @@ def create_app(config_file=Config):
         response.headers.add('Access-Control-Allow-Credentials', 'true')
 
         return response
+
+    @app.route('/')
+    def index():
+        return app.send_static_file('index.html')
 
     @app.route('/movies', methods=['GET'])
     @requires_auth('get:movies')
@@ -628,7 +632,7 @@ def create_app(config_file=Config):
     return app
 
 
-APP = create_app()
+app = create_app()
 
 if __name__ == '__main__':
-    APP.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)

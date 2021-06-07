@@ -1,16 +1,27 @@
 .Category {
     font-size: small;
+    text-align: center;
 }
 
 .Category td {
     border-bottom: 1px solid #282c34;
-    padding: 5px;
-    margin: 5px;
+    padding: 20px;
+    margin: 10px;
 }
 
-.CategoryName {
-    text-align: left;
+.CategoryImage {
+    padding: 5px 50px;
+    margin: 10px auto;
 }
 
+.CategoryImage img {
+    width: 50px;
+}
 
+.CategoryDate {
+    color: dimgray;
+}
 
+.Icons a {
+    color: #282c34;
+}

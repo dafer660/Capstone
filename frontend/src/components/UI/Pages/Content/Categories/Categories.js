@@ -1,10 +1,9 @@
 import React, {Component} from 'react'
-import ReactPaginate from "react-paginate";
+import ReactPaginate from "react-paginate"
 import {Link} from "react-router-dom";
 import {withAuth0} from "@auth0/auth0-react";
-
-import Alert from '@material-ui/lab/Alert';
 import {Snackbar} from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
 
 import Pages from "../../Pages";
 import Header from "../../Header/Header";
@@ -12,16 +11,15 @@ import Main from "../../Main/Main";
 import Category from "./Category/Category";
 import Loading from "../../../../../hoc/Loading/Loading";
 
-import classes from "./Categories.module.css";
+import classes from "./Categories.module.css"
 
 export class Categories extends Component {
-
     constructor(props) {
         super(props);
 
         this.state = {
             allCategories: [],
-            currentCategories: [],
+            updateCategory: [],
             currentPage: 1,
             totalCategories: 0,
             pageCount: 0,
@@ -35,11 +33,13 @@ export class Categories extends Component {
     }
 
     componentDidMount() {
+        // if (this.state.allCategories.length <= 0) {
         this.getCategories()
+        // }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevState.totalCategories > this.state.totalCategories) {
+        if (prevState.totalCategories !== this.state.totalCategories) {
             this.getCategories();
         }
 
@@ -77,6 +77,16 @@ export class Categories extends Component {
         })
     }
 
+    handlePageClick = (data) => {
+        let selected = data.selected;
+        // let offset = Math.ceil(selected * this.props.perPage);
+        let offset = Math.ceil(selected * 10);
+
+        this.setState({offset: offset, currentPage: selected + 1}, () => {
+            this.getCategories();
+        });
+    }
+
     handleDelete = (id) => {
         // permission: 'delete:categories'
         let token = sessionStorage.getItem('token')
@@ -106,25 +116,17 @@ export class Categories extends Component {
                         this.handleOpen('success', `Category ${json.deleted.name} has been deleted.`);
                     })
                     .catch((error) => {
+                        console.log(error.message)
+                        this.handleOpen('error', 'An error has occurred.');
                         return;
                     })
             }
         } else {
-            this.handleOpen('error', 'No permissions to delete a Category.');
+            this.handleOpen('error', 'An error has occurred.');
         }
     }
 
-    handlePageClick = (data) => {
-        let selected = data.selected;
-        // let offset = Math.ceil(selected * this.props.perPage);
-        let offset = Math.ceil(selected * 10);
-
-        this.setState({offset: offset, currentPage: selected + 1}, () => {
-            this.getCategories();
-        });
-    };
-
-    getCategories = async () => {
+    getCategories = () => {
         // permission: 'get:categories'
         let token = sessionStorage.getItem('token')
         let payload, permissions
@@ -152,7 +154,9 @@ export class Categories extends Component {
                     })
                 })
                 .catch((error) => {
-                    return error.message;
+                    console.log(error.message)
+                    this.handleOpen('error', 'An error has occurred.');
+                    return;
                 })
         } else {
             this.handleOpen('error', 'An error has occurred.');
@@ -160,7 +164,6 @@ export class Categories extends Component {
     }
 
     render() {
-        const {isLoading, isAuthenticated} = this.props.auth0
         this.props.handleToken().then((response => {
             if (sessionStorage.getItem('token') !== response) {
                 sessionStorage.setItem('token', response)
@@ -169,84 +172,78 @@ export class Categories extends Component {
 
         const payload = this.props.handleGetPayload(sessionStorage.getItem('token'))
 
-        if (isLoading) {
-            return <Loading/>;
-        }
-
         return (
-            isAuthenticated && (
-                <Pages>
-                    <div>
-                        <Snackbar open={this.state.open} autoHideDuration={3000} onClose={this.handleClose}>
-                            <Alert variant="filled" onClose={this.handleClose} severity={this.state.severity}>
-                                {this.state.severityMessage}
-                            </Alert>
-                        </Snackbar>
+            <Pages>
+                <div>
+                    <Snackbar open={this.state.open} autoHideDuration={3000} onClose={this.handleClose}>
+                        <Alert variant="filled" onClose={this.handleClose} severity={this.state.severity}>
+                            {this.state.severityMessage}
+                        </Alert>
+                    </Snackbar>
+                </div>
+                <Header>
+                    <div className={classes.CategoriesHeader}>
+                        <h2>Categories
+                            {this.props.handleCan('post:categories', payload) ?
+                                <Link to={"/new-category"} title={'Add a Category'}>
+                                    &#43;
+                                </Link> :
+                                ''}
+                        </h2>
                     </div>
-                    <Header>
-                        <div className={classes.CategoriesHeader}>
-                            <h2>Categories
-                                {this.props.handleCan('post:categories', payload) ?
-                                    <Link to={"/new-category"} title={'Add a Category'}>
-                                        &#43;
-                                    </Link> :
-                                    ''}
-                            </h2>
-                        </div>
-                    </Header>
-                    <Main>
-                        <div className={classes.CategoriesMain}>
-                            <div>
-                                {this.state.totalCategories > 0 ? (
-                                        <table>
-                                            <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th>Name</th>
-                                                <th></th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {this.state.allCategories.map((key, idx) => (
-                                                <Category
-                                                    key={key.id}
-                                                    name={key.name}
-                                                    editCategory={key.id}
-                                                    handleDelete={() => this.handleDelete(key.id)}
-                                                    canDelete={this.props.handleCan('delete:categories', payload)}
-                                                    canEdit={this.props.handleCan('patch:categories', payload)}
-                                                />
-                                            ))}
-                                            </tbody>
-                                        </table>
-                                    ) :
-                                    <p>There are no Categories to display</p>
-                                }
-                            </div>
-                        </div>
+                </Header>
+                <Main>
+                    <div className={classes.CategoriesMain}>
                         <div>
-                            {this.state.totalCategories > 10 ? <ReactPaginate
-                                previousLabel={'← Previous'}
-                                nextLabel={'Next →'}
-                                breakLabel={'...'}
-                                breakClassName={'break-me'}
-                                pageCount={this.state.pageCount}
-                                marginPagesDisplayed={2}
-                                pageRangeDisplayed={5}
-                                onPageChange={this.handlePageClick}
-                                containerClassName={classes.Paginate}
-                                previousClassName={classes.PaginateLink}
-                                nextClassName={classes.PaginateLink}
-                                pageClassName={classes.PaginateLink}
-                                disabledClassName={classes.PaginateDisabled}
-                                activeClassName={classes.PaginateActive}
-                            /> : null}
+                            {this.state.totalCategories > 0 ? (
+                                    <table>
+                                        <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Name</th>
+                                            <th></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {this.state.allCategories.map((key, idx) => (
+                                            <Category
+                                                key={key.id}
+                                                name={key.name}
+                                                editCategory={key.id}
+                                                handleDelete={() => this.handleDelete(key.id)}
+                                                canDelete={this.props.handleCan('delete:categories', payload)}
+                                                canEdit={this.props.handleCan('patch:categories', payload)}
+                                            />
+                                        ))}
+                                        </tbody>
+                                    </table>
+                                ) :
+                                <p>There are no Categories to display</p>
+                            }
                         </div>
-                    </Main>
-                </Pages>
-            )
+                    </div>
+                    <div>
+                        {this.state.totalCategories > 10 ? <ReactPaginate
+                            previousLabel={'← Previous'}
+                            nextLabel={'Next →'}
+                            breakLabel={'...'}
+                            breakClassName={'break-me'}
+                            pageCount={this.state.pageCount}
+                            marginPagesDisplayed={2}
+                            pageRangeDisplayed={5}
+                            onPageChange={this.handlePageClick}
+                            containerClassName={classes.Paginate}
+                            previousClassName={classes.PaginateLink}
+                            nextClassName={classes.PaginateLink}
+                            pageClassName={classes.PaginateLink}
+                            disabledClassName={classes.PaginateDisabled}
+                            activeClassName={classes.PaginateActive}
+                        /> : null}
+                    </div>
+                </Main>
+            </Pages>
         )
     }
 }
 
-export default withAuth0(Categories);
+export default Categories;
