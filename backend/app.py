@@ -3,7 +3,7 @@ import os
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 from config import TestConfig, Config
 from models import setup_db, Movies, Actors, Category, MoviesCategories, MoviesActors, Agents
@@ -43,6 +43,7 @@ def create_app(config_file=Config):
 
     db.init_app(app=app)
     # cors.init_app(app, resources={r"*": {"origins": "*"}})
+    cors.init_app(app)
     migrate.init_app(app=app, db=db)
 
     with app.app_context():
@@ -67,6 +68,7 @@ def create_app(config_file=Config):
         return app.send_static_file('index.html')
 
     @app.route('/movies', methods=['GET'])
+    @cross_origin()
     @requires_auth('get:movies')
     def get_movies(payload):
         """
@@ -87,6 +89,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/actors', methods=['GET'])
+    @cross_origin()
     @requires_auth('get:actors')
     def get_actors(payload):
         """
@@ -106,6 +109,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/actor/<int:actor_id>', methods=['GET'])
+    @cross_origin()
     @requires_auth('patch:actors')
     def get_actor(payload, actor_id):
         """
@@ -123,6 +127,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/movie/<int:movie_id>', methods=['GET'])
+    @cross_origin()
     @requires_auth('patch:movies')
     def get_movie(payload, movie_id):
         """
@@ -140,6 +145,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/agents', methods=['GET'])
+    @cross_origin()
     @requires_auth('get:agents')
     def get_agents(payload):
         """
@@ -157,6 +163,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/agent/<int:agent_id>', methods=['GET'])
+    @cross_origin()
     @requires_auth('patch:agents')
     def get_agent(payload, agent_id):
         """
@@ -174,6 +181,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/categories', methods=['GET'])
+    @cross_origin()
     @requires_auth('get:categories')
     def get_categories(payload):
         """
@@ -191,6 +199,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/category/<int:category_id>', methods=['GET'])
+    @cross_origin()
     @requires_auth('patch:categories')
     def get_category(payload, category_id):
         """
@@ -208,6 +217,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/actor', methods=['POST'])
+    @cross_origin()
     @requires_auth('post:actors')
     def new_actor(payload):
         """
@@ -240,6 +250,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/agent', methods=['POST'])
+    @cross_origin()
     @requires_auth('post:agents')
     def new_agent(payload):
         """
@@ -268,6 +279,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/category', methods=['POST'])
+    @cross_origin()
     @requires_auth('post:categories')
     def new_category(payload):
         """
@@ -295,6 +307,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/movie', methods=['POST'])
+    @cross_origin()
     @requires_auth('post:movies')
     def new_movie(payload):
         """
@@ -335,6 +348,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/update/actor/<int:actor_id>', methods=['PATCH'])
+    @cross_origin()
     @requires_auth('patch:actors')
     def update_actor(payload, actor_id):
         """
@@ -365,6 +379,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/update/agent/<int:agent_id>', methods=['PATCH'])
+    @cross_origin()
     @requires_auth('patch:agents')
     def update_agent(payload, agent_id):
         """
@@ -392,6 +407,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/update/category/<int:category_id>', methods=['PATCH'])
+    @cross_origin()
     @requires_auth('patch:categories')
     def update_category(payload, category_id):
         """
@@ -418,6 +434,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/update/movie/<int:movie_id>', methods=['PATCH'])
+    @cross_origin()
     @requires_auth('patch:movies')
     def update_movie(payload, movie_id):
         """
@@ -464,6 +481,7 @@ def create_app(config_file=Config):
         })
 
     @app.route('/actor/<int:actor_id>', methods=['DELETE'])
+    @cross_origin()
     @requires_auth('delete:actors')
     def remove_actor(payload, actor_id):
         """
@@ -493,6 +511,7 @@ def create_app(config_file=Config):
             abort(422, e)
 
     @app.route('/agent/<int:agent_id>', methods=['DELETE'])
+    @cross_origin()
     @requires_auth('delete:agents')
     def remove_agent(payload, agent_id):
         """
@@ -522,6 +541,7 @@ def create_app(config_file=Config):
             abort(422, e)
 
     @app.route('/category/<int:category_id>', methods=['DELETE'])
+    @cross_origin()
     @requires_auth('delete:categories')
     def remove_category(payload, category_id):
         """
@@ -551,6 +571,7 @@ def create_app(config_file=Config):
             abort(422, e)
 
     @app.route('/movie/<int:movie_id>', methods=['DELETE'])
+    @cross_origin()
     @requires_auth('delete:movies')
     def remove_movie(payload, movie_id):
         """
