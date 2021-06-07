@@ -1,9 +1,6 @@
-import os
-
 from sqlalchemy import Column, String, Integer, Date, DateTime, ForeignKey, create_engine
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-import json
 
 db = SQLAlchemy()
 
@@ -20,29 +17,12 @@ def setup_db(app):
     db.create_all()
 
 
-class Movies(db.Model):
-    __tablename__ = 'movies'
+class MoviesCategories(db.Model):
+    __tablename__ = 'movies_categories'
 
     id = Column(Integer, primary_key=True)
-    title = Column(String)
-    release_date = Column(Date)
-    rating = Column(Integer)
-    # Many to Many
-    actors = db.relationship('Actors',
-                             secondary='movies_actors', lazy='joined',
-                             backref=db.backref('actors', lazy='dynamic'))
-    categories = db.relationship('Category',
-                                 secondary='movies_categories', lazy='joined',
-                                 backref=db.backref('categories', lazy='dynamic'))
-
-    def __init__(self, title, release_date, rating):
-        self.title = title
-        self.release_date = release_date
-        self.rating = rating
-
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
+    movie_id = Column(Integer, ForeignKey('movies.id', ondelete='CASCADE'))
+    category_id = Column(Integer, ForeignKey('category.id', ondelete='CASCADE'))
 
     def update(self):
         db.session.commit()
@@ -51,19 +31,24 @@ class Movies(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def format(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'release_date': self.release_date,
-            'categories': [category.name for category in self.categories],
-            'actors': [actor.name for actor in self.actors],
-            'rating': self.rating
-        }
+
+class MoviesActors(db.Model):
+    __tablename__ = 'movies_actors'
+
+    id = Column(Integer, primary_key=True)
+    movie_id = Column(Integer, ForeignKey('movies.id', ondelete='CASCADE'))
+    actor_id = Column(Integer, ForeignKey('actors.id', ondelete='CASCADE'))
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
 
 
 class Category(db.Model):
-    __tablename__ = 'categories'
+    __tablename__ = 'category'
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -137,36 +122,6 @@ class Actors(db.Model):
         }
 
 
-class MoviesActors(db.Model):
-    __tablename__ = 'movies_actors'
-
-    id = Column(Integer, primary_key=True)
-    movie_id = Column(Integer, ForeignKey('movies.id', ondelete='CASCADE'))
-    actor_id = Column(Integer, ForeignKey('actors.id', ondelete='CASCADE'))
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-
-class MoviesCategories(db.Model):
-    __tablename__ = 'movies_categories'
-
-    id = Column(Integer, primary_key=True)
-    category_id = Column(Integer, ForeignKey('categories.id', ondelete='CASCADE'))
-    movie_id = Column(Integer, ForeignKey('movies.id', ondelete='CASCADE'))
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-
 class Agents(db.Model):
     __tablename__ = 'agents'
 
@@ -175,7 +130,7 @@ class Agents(db.Model):
     joined_in = Column(Date, default=datetime.now())
 
     # One to Many
-    actors = db.relationship('Actors', backref='agents', lazy=True)
+    actors = db.relationship('Actors', backref=db.backref('actors', passive_deletes=True, lazy='dynamic'))
 
     def __init__(self, name, joined_in=datetime.now()):
         self.name = name
@@ -197,4 +152,47 @@ class Agents(db.Model):
             'id': self.id,
             'name': self.name,
             'joined_in': self.joined_in
+        }
+
+
+class Movies(db.Model):
+    __tablename__ = 'movies'
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String)
+    release_date = Column(Date)
+    rating = Column(Integer)
+
+    # Many to Many
+    actors = db.relationship('Actors',
+                             secondary='movies_actors', lazy='joined',
+                             backref=db.backref('actors', lazy='dynamic', passive_deletes=True))
+    categories = db.relationship('Category',
+                                 secondary='movies_categories', lazy='joined',
+                                 backref=db.backref('categories', lazy='dynamic', passive_deletes=True))
+
+    def __init__(self, title, release_date, rating):
+        self.title = title
+        self.release_date = release_date
+        self.rating = rating
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'release_date': self.release_date,
+            'categories': [category.name for category in self.categories],
+            'actors': [actor.name for actor in self.actors],
+            'rating': self.rating
         }
