@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import ReactPaginate from "react-paginate"
 import {Link} from "react-router-dom";
-import {withAuth0} from "@auth0/auth0-react";
 import {Snackbar} from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 
@@ -9,7 +8,6 @@ import Pages from "../../Pages";
 import Header from "../../Header/Header";
 import Main from "../../Main/Main";
 import Category from "./Category/Category";
-import Loading from "../../../../../hoc/Loading/Loading";
 
 import classes from "./Categories.module.css"
 
@@ -33,9 +31,7 @@ export class Categories extends Component {
     }
 
     componentDidMount() {
-        // if (this.state.allCategories.length <= 0) {
         this.getCategories()
-        // }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
