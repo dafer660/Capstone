@@ -135,7 +135,7 @@ class FormActor extends Component {
         payload = this.props.handleGetPayload(token)
         permissions = this.props.handleCan('get:agents', payload)
         if (permissions) {
-            fetch(`${process.env.REACT_APP_API_URI}/agents`, {
+            fetch(`/agents`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -171,7 +171,7 @@ class FormActor extends Component {
         payload = this.props.handleGetPayload(token)
         permissions = this.props.handleCan('get:actors', payload)
         if (permissions) {
-            fetch(`${process.env.REACT_APP_API_URI}/actor/${id}`, {
+            fetch(`/actor/${id}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -241,7 +241,7 @@ class FormActor extends Component {
             )
         };
         if (permissions) {
-            fetch(`${process.env.REACT_APP_API_URI}${url}`, requestOptions)
+            fetch(`${url}`, requestOptions)
                 .then((result) => {
                     if (result.status === 200) {
                         this.props.history.push('/actors');

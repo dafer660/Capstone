@@ -93,7 +93,7 @@ export class Actors extends Component {
         permissions = this.props.handleCan('patch:actors', payload)
         if (permissions) {
             // fetch(`http://localhost:5000/actor/${id}`, {
-            fetch(`${process.env.REACT_APP_API_URI}/${id}`, {
+            fetch(`/actor/${id}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -128,7 +128,7 @@ export class Actors extends Component {
         permissions = this.props.handleCan('delete:actors', payload)
         if (permissions) {
             if (window.confirm('are you sure you want to delete the selected Agent?')) {
-                fetch(`${process.env.REACT_APP_API_URI}/actor/${id}`, {
+                fetch(`/actor/${id}`, {
                     // fetch(`http://localhost:5000/actor/${id}`, {
                     method: 'DELETE',
                     headers: {
@@ -169,7 +169,7 @@ export class Actors extends Component {
         permissions = this.props.handleCan('get:actors', payload)
 
         if (permissions) {
-            fetch(`${process.env.REACT_APP_API_URI}/actors?page=${this.state.currentPage}&limit=${10}&offset=${this.state.offset}`, {
+            fetch(`/actors?page=${this.state.currentPage}&limit=${10}&offset=${this.state.offset}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
