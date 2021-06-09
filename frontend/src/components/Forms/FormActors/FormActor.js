@@ -3,12 +3,10 @@ import Header from "../../UI/Pages/Header/Header";
 import Main from "../../UI/Pages/Main/Main";
 import Pages from "../../UI/Pages/Pages";
 import classes from "./FormActor.module.css";
-import {Link, withRouter} from "react-router-dom";
+import {withRouter} from "react-router-dom";
 
 import {Button, Snackbar, TextField} from '@material-ui/core';
 import Moment from "moment";
-import {FormErrors} from "../Errors/Errors";
-import {string} from "prop-types";
 import Alert from "@material-ui/lab/Alert";
 
 
@@ -135,7 +133,7 @@ class FormActor extends Component {
         payload = this.props.handleGetPayload(token)
         permissions = this.props.handleCan('get:agents', payload)
         if (permissions) {
-            fetch(`/agents`, {
+            fetch(`${process.env.REACT_APP_API_URL}/agents`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -171,7 +169,7 @@ class FormActor extends Component {
         payload = this.props.handleGetPayload(token)
         permissions = this.props.handleCan('get:actors', payload)
         if (permissions) {
-            fetch(`/actor/${id}`, {
+            fetch(`${process.env.REACT_APP_API_URL}/actor/${id}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -204,23 +202,25 @@ class FormActor extends Component {
         let token = sessionStorage.getItem('token')
         payload = this.props.handleGetPayload(token)
 
+        const name = document.getElementsByName('name')[0].value
+        const gender = document.getElementsByName('gender')[0].value
+        const age = document.getElementsByName('age')[0].value
+        const agent_id = document.getElementById('agent_id')[0].value
+        const agent = document.getElementById('agent_id')[0].innerText
+        const joined_in = document.getElementsByName('joined_in')[0].value
+        actor = {name, gender, age, agent, joined_in, agent_id}
+
         if (this.props.formUpdate) {
-            actor = this.state.actor
+            // actor = this.state.actor
             method = 'PATCH'
             url = `/update/actor/${this.state.id}`
             permissions = this.props.handleCan('patch:actors', payload)
         } else {
-            const name = document.getElementsByName('name')[0].value
-            const gender = document.getElementsByName('gender')[0].value
-            const age = document.getElementsByName('age')[0].value
-            const agent_id = document.getElementById('agent_id')[0].value
-            const agent = document.getElementById('agent_id')[0].innerText
-            const joined_in = document.getElementsByName('joined_in')[0].value
             method = 'POST'
             url = '/actor'
             permissions = this.props.handleCan('post:actors', payload)
-            actor = {name, gender, age, agent, joined_in, agent_id}
         }
+
 
         const requestOptions = {
             method: method,
@@ -241,7 +241,7 @@ class FormActor extends Component {
             )
         };
         if (permissions) {
-            fetch(`${url}`, requestOptions)
+            fetch(`${process.env.REACT_APP_API_URL}${url}`, requestOptions)
                 .then((result) => {
                     if (result.status === 200) {
                         this.props.history.push('/actors');
@@ -348,7 +348,6 @@ class FormActor extends Component {
                     </div>
                 </Main>
             </Pages>
-
         )
     }
 }

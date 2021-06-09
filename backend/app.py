@@ -37,7 +37,7 @@ def create_app(config_file=Config):
     :param config_file: a config file, which you can setup in the config.py file - defaults to Config
     :return: returns the flask app
     """
-    app = Flask(__name__, static_folder='./build', static_url_path='/')
+    app = Flask(__name__)
 
     app.config.from_object(config_file)
 
@@ -50,22 +50,22 @@ def create_app(config_file=Config):
         setup_db(app)
 
     # Just do CORS stuff here before request
-    # @app.after_request
-    # def after_request(response):
-    #     """
-    #     Function that handles CORS
-    #     :param response: response header
-    #     :return: returns the response with CORS headers
-    #     """
-    #     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
-    #     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    #     response.headers.add('Access-Control-Allow-Credentials', 'true')
-    #
-    #     return response
+    @app.after_request
+    def after_request(response):
+        """
+        Function that handles CORS
+        :param response: response header
+        :return: returns the response with CORS headers
+        """
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+
+        return response
 
     @app.route('/')
     def index():
-        return app.send_static_file('index.html')
+        return "<h1>Capstone API</h1>"
 
     @app.route('/movies', methods=['GET'])
     @cross_origin()
@@ -74,18 +74,52 @@ def create_app(config_file=Config):
         """
         Get the Movies here and paginate them
         :param payload:
-        :return: a json object containing the paginated movies, the latest movies (not used) and the total movies
+        :return: a json object containing the paginated movies and the total movies
         """
         movies = Movies.query.order_by(Movies.id).all()
-        latest_movies = Actors.query.order_by(Actors.joined_in.desc()).limit(2)
 
         if len(movies) == 0:
             abort(404, 'Sorry, we could not find any Movies to display.')
 
         return jsonify({
             'movies': paginate(request, movies),
-            'latest_movies': paginate(request, latest_movies),
             'total_movies': len(movies)
+        })
+
+    @app.route('/agents', methods=['GET'])
+    @cross_origin()
+    @requires_auth('get:agents')
+    def get_agents(payload):
+        """
+        GET method to fetch all the agents from the database
+        :return: json object containing the paginated agents, and total of agents
+        """
+        agents = Agents.query.order_by(Agents.id).all()
+
+        if len(agents) == 0:
+            abort(404, 'Sorry, we could not find any Agents.')
+
+        return jsonify({
+            'agents': paginate(request, agents),
+            'total_agents': len(agents)
+        })
+
+    @app.route('/categories', methods=['GET'])
+    @cross_origin()
+    @requires_auth('get:categories')
+    def get_categories(payload):
+        """
+        GET method to fetch the categories and paginate them
+        :return: json object containing all categories and total categories
+        """
+        categories = Category.query.order_by(Category.id).all()
+
+        if len(categories) == 0:
+            abort(404, 'Sorry, we could not find any Categories.')
+
+        return jsonify({
+            'categories': paginate(request, categories),
+            'total_categories': len(categories)
         })
 
     @app.route('/actors', methods=['GET'])
@@ -94,18 +128,34 @@ def create_app(config_file=Config):
     def get_actors(payload):
         """
         GET method to fetch all the actors
-        :return: json object containing the paginated actors, latest actors (not being used) and total of actors
+        :return: json object containing the paginated actors and total of actors
         """
         actors = Actors.query.order_by(Actors.id).all()
-        latest_actors = Actors.query.order_by(Actors.joined_in.desc()).limit(2)
 
         if len(actors) == 0:
             abort(404, 'Sorry, we could not find any Agents to display.')
 
         return jsonify({
             'actors': paginate(request, actors),
-            'latest_actors': paginate(request, latest_actors),
             'total_actors': len(actors)
+        })
+
+    @app.route('/agent/<int:agent_id>', methods=['GET'])
+    @cross_origin()
+    @requires_auth('patch:agents')
+    def get_agent(payload, agent_id):
+        """
+        GET method to fetch the agent based on agent_id passed
+        :param agent_id: the id of the current agent to fetch from the database
+        :return: json object containing the agent in a proper format
+        """
+        agent = Agents.query.filter_by(id=agent_id).first_or_404()
+
+        if agent is None:
+            abort(404, 'Sorry, we could not find any Agents to display.')
+
+        return jsonify({
+            'agent': agent.format(),
         })
 
     @app.route('/actor/<int:actor_id>', methods=['GET'])
@@ -144,60 +194,6 @@ def create_app(config_file=Config):
             'movie': movie.format(),
         })
 
-    @app.route('/agents', methods=['GET'])
-    @cross_origin()
-    @requires_auth('get:agents')
-    def get_agents(payload):
-        """
-        GET method to fetch all the agents from the database
-        :return: json object containing the paginated agents, and total of agents
-        """
-        agents = Agents.query.order_by(Agents.id).all()
-
-        if len(agents) == 0:
-            abort(404, 'Sorry, we could not find any Agents.')
-
-        return jsonify({
-            'agents': paginate(request, agents),
-            'total_agents': len(agents)
-        })
-
-    @app.route('/agent/<int:agent_id>', methods=['GET'])
-    @cross_origin()
-    @requires_auth('patch:agents')
-    def get_agent(payload, agent_id):
-        """
-        GET method to fetch the agent based on agent_id passed
-        :param agent_id: the id of the current agent to fetch from the database
-        :return: json object containing the agent in a proper format
-        """
-        agent = Agents.query.filter_by(id=agent_id).first_or_404()
-
-        if agent is None:
-            abort(404, 'Sorry, we could not find any Agents to display.')
-
-        return jsonify({
-            'movie': agent.format(),
-        })
-
-    @app.route('/categories', methods=['GET'])
-    @cross_origin()
-    @requires_auth('get:categories')
-    def get_categories(payload):
-        """
-        GET method to fetch the categories and paginate them
-        :return: json object containing all categories and total categories
-        """
-        categories = Category.query.order_by(Category.id).all()
-
-        if len(categories) == 0:
-            abort(404, 'Sorry, we could not find any Categories.')
-
-        return jsonify({
-            'categories': paginate(request, categories),
-            'total_categories': len(categories)
-        })
-
     @app.route('/category/<int:category_id>', methods=['GET'])
     @cross_origin()
     @requires_auth('patch:categories')
@@ -226,6 +222,7 @@ def create_app(config_file=Config):
         :return:
         """
         form = request.get_json(force=True)
+        print(form)
 
         if Actors.query.filter_by(name=form['name']).first() is not None:
             abort(500, "Agent '{}' already exists...".format(
@@ -259,6 +256,7 @@ def create_app(config_file=Config):
         :return:
         """
         form = request.get_json(force=True)
+        print(form)
 
         if Agents.query.filter_by(name=form['name']).first() is not None:
             abort(500, "Agent '{}' already exists...".format(
@@ -331,13 +329,14 @@ def create_app(config_file=Config):
 
             categories = [Category.query.filter_by(name=category).first() for category in form['categories']]
             actors = [Actors.query.filter_by(name=actor).first() for actor in form['actors']]
+            new_movie.categories = categories
+            new_movie.actors = actors
 
             # As I am not sure how to use 'uselist', this will suffice:
-            for category in categories:
-                new_movie.categories.append(category)
-
-            for actor in actors:
-                new_movie.actors.append(actor)
+            # for category in categories:
+            #     new_movie.categories.append(category)
+            # for actor in actors:
+            #     new_movie.actors.append(actor)
 
             new_movie.insert()
         except Exception as e:
@@ -659,4 +658,4 @@ app = create_app()
 port = int(os.environ.get("PORT", 8080))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port)

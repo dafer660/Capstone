@@ -1,0 +1,27 @@
+{
+  "files": {
+    "main.css": "/static/css/main.274ecff8.chunk.css",
+    "main.js": "/static/js/main.be002086.chunk.js",
+    "main.js.map": "/static/js/main.be002086.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.a07dcbf6.js",
+    "runtime-main.js.map": "/static/js/runtime-main.a07dcbf6.js.map",
+    "static/js/2.95019a08.chunk.js": "/static/js/2.95019a08.chunk.js",
+    "static/js/2.95019a08.chunk.js.map": "/static/js/2.95019a08.chunk.js.map",
+    "static/js/3.538ec11c.chunk.js": "/static/js/3.538ec11c.chunk.js",
+    "static/js/3.538ec11c.chunk.js.map": "/static/js/3.538ec11c.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/main.274ecff8.chunk.css.map": "/static/css/main.274ecff8.chunk.css.map",
+    "static/js/2.95019a08.chunk.js.LICENSE.txt": "/static/js/2.95019a08.chunk.js.LICENSE.txt",
+    "static/media/DanielFerreira_Image.b8d0c3b0.jpg": "/static/media/DanielFerreira_Image.b8d0c3b0.jpg",
+    "static/media/github.22e65707.svg": "/static/media/github.22e65707.svg",
+    "static/media/linkedin.2eda7bdd.svg": "/static/media/linkedin.2eda7bdd.svg",
+    "static/media/toast.93743590.png": "/static/media/toast.93743590.png",
+    "static/media/udacity.02489ad2.svg": "/static/media/udacity.02489ad2.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.a07dcbf6.js",
+    "static/js/2.95019a08.chunk.js",
+    "static/css/main.274ecff8.chunk.css",
+    "static/js/main.be002086.chunk.js"
+  ]
+}

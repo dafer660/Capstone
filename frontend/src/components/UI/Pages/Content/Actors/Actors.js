@@ -93,14 +93,14 @@ export class Actors extends Component {
         permissions = this.props.handleCan('patch:actors', payload)
         if (permissions) {
             // fetch(`http://localhost:5000/actor/${id}`, {
-            fetch(`/actor/${id}`, {
+            fetch(`${process.env.REACT_APP_API_URL}/actor/${id}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
                 }
             })
                 .then((response) => {
-                    if (response.ok) {
+                    if (response.status === 200) {
                         return response.json()
                     }
                 })
@@ -128,7 +128,7 @@ export class Actors extends Component {
         permissions = this.props.handleCan('delete:actors', payload)
         if (permissions) {
             if (window.confirm('are you sure you want to delete the selected Agent?')) {
-                fetch(`/actor/${id}`, {
+                fetch(`${process.env.REACT_APP_API_URL}/actor/${id}`, {
                     // fetch(`http://localhost:5000/actor/${id}`, {
                     method: 'DELETE',
                     headers: {
@@ -169,14 +169,14 @@ export class Actors extends Component {
         permissions = this.props.handleCan('get:actors', payload)
 
         if (permissions) {
-            fetch(`/actors?page=${this.state.currentPage}&limit=${10}&offset=${this.state.offset}`, {
+            fetch(`${process.env.REACT_APP_API_URL}/actors?page=${this.state.currentPage}&limit=${10}&offset=${this.state.offset}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
                 }
             })
                 .then((response) => {
-                    if (response.ok) {
+                    if (response.status === 200) {
                         return response.json();
                     }
                 })
