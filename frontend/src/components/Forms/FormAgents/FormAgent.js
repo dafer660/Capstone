@@ -116,7 +116,7 @@ class FormAgent extends Component {
         permissions = this.props.handleCan('get:agents', payload)
 
         if (permissions) {
-            fetch(`${process.env.REACT_APP_API_URI}/agent/${id}`, {
+            fetch(`${process.env.REACT_APP_API_URL}/agent/${id}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -150,6 +150,7 @@ class FormAgent extends Component {
 
         if (this.props.formUpdate) {
             agent = this.state.agent
+            console.log(agent)
             method = 'PATCH'
             url = `/update/agent/${this.state.id}`
             permissions = this.props.handleCan('patch:agents', payload)
@@ -178,7 +179,7 @@ class FormAgent extends Component {
             )
         };
         if (permissions) {
-            fetch(`${process.env.REACT_APP_API_URI}${url}`, requestOptions)
+            fetch(`${process.env.REACT_APP_API_URL}${url}`, requestOptions)
                 .then((result) => {
                     if (result.status === 200) {
                         this.props.history.push('/agents');
@@ -212,7 +213,7 @@ class FormAgent extends Component {
                 </Header>
                 <Main>
                     <div className={classes.FormAgent}>
-                        <form id="add-actor-form">
+                        <form id="add-agent-form">
                             <label>
                                 Name
                                 <input type="text"
@@ -249,11 +250,8 @@ class FormAgent extends Component {
                     </div>
                 </Main>
             </Pages>
-
         )
     }
-
-
 }
 
 export default withRouter(FormAgent);

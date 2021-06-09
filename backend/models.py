@@ -130,7 +130,7 @@ class Agents(db.Model):
     joined_in = Column(Date, default=datetime.now())
 
     # One to Many
-    actors = db.relationship('Actors', backref=db.backref('actors', passive_deletes=True, lazy='dynamic'))
+    actors = db.relationship('Actors', backref=db.backref('agents', lazy=True))
 
     def __init__(self, name, joined_in=datetime.now()):
         self.name = name

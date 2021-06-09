@@ -84,7 +84,7 @@ export class Movies extends Component {
         permissions = this.props.handleCan('delete:movies', payload)
         if (permissions) {
             if (window.confirm('are you sure you want to delete the selected Movie?')) {
-                fetch(`${process.env.REACT_APP_API_URI}/movie/${id}`, {
+                fetch(`${process.env.REACT_APP_API_URL}/movie/${id}`, {
                     method: 'DELETE',
                     headers: {
                         Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -131,7 +131,7 @@ export class Movies extends Component {
         permissions = this.props.handleCan('get:movies', payload)
 
         if (permissions) {
-            fetch(`${process.env.REACT_APP_API_URI}/movies?page=${this.state.currentPage}&limit=${10}&offset=${this.state.offset}`, {
+            fetch(`${process.env.REACT_APP_API_URL}/movies?page=${this.state.currentPage}&limit=${10}&offset=${this.state.offset}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')

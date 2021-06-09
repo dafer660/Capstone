@@ -92,7 +92,7 @@ export class Agents extends Component {
         permissions = this.props.handleCan('delete:agents', payload)
         if (permissions) {
             if (window.confirm('are you sure you want to delete the selected Agent?')) {
-                fetch(`${process.env.REACT_APP_API_URI}/agent/${id}`, {
+                fetch(`${process.env.REACT_APP_API_URL}/agent/${id}`, {
                     method: 'DELETE',
                     headers: {
                         Authorization: 'Bearer ' + sessionStorage.getItem('token')
@@ -131,14 +131,14 @@ export class Agents extends Component {
         permissions = this.props.handleCan('get:agents', payload)
 
         if (permissions) {
-            fetch(`${process.env.REACT_APP_API_URI}/agents?page=${this.state.currentPage}&limit=${10}&offset=${this.state.offset}`, {
+            fetch(`${process.env.REACT_APP_API_URL}/agents?page=${this.state.currentPage}&limit=${10}&offset=${this.state.offset}`, {
                 method: 'GET',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.getItem('token')
                 }
             })
                 .then((response) => {
-                    if (response.ok) {
+                    if (response.status === 200) {
                         return response.json();
                     }
                 })

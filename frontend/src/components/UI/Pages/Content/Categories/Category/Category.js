@@ -27,7 +27,7 @@ export class Category extends Component {
                         </a>
                     </IconButton>
                     <IconButton disabled={!this.props.canEdit}>
-                        <Link to={'edit/agent/' + this.props.editCategory}>
+                        <Link to={'edit/category/' + this.props.editCategory}>
                             <EditIcon
                                 color={!this.props.canEdit ? 'disabled' : 'primary'}
                                 fontSize="small"/>

@@ -17,12 +17,12 @@ import Movies from "./components/UI/Pages/Content/Movies/Movies";
 import About from "./components/UI/Pages/Content/About/About";
 import Layout from "./hoc/Layout/Layout";
 import FormActor from "./components/Forms/FormActors/FormActor";
-import FormMovie from "./components/Forms/FormMovies/FormMovie";
+import FormMovie from "./components/Forms/FormMovie/FormMovie";
 import FormAgent from "./components/Forms/FormAgents/FormAgent";
 import Agents from "./components/UI/Pages/Content/Agents/Agents";
 import Loading from "./hoc/Loading/Loading";
 import ProtectedRoute from "./components/Auth/ProtectedRoute/ProtectedRoute";
-import FormCategory from "./components/Forms/FormCategories/FormCategory";
+import FormCategory from "./components/Forms/FormCategory/FormCategory";
 import {Categories} from "./components/UI/Pages/Content/Categories/Categories";
 
 class App extends Component {
@@ -212,7 +212,7 @@ class App extends Component {
                                                                                 handleCan={this.handleCan}/>}/>
                             <Route path="/about"
                                    component={(props) => <About/>}/>
-                            <Route render={() => <Redirect to={{pathname: "/"}} />} />
+                            <Route render={() => <Redirect to={"/"} />} />
                         </Switch>
                     </Layout>
                 </Router>
