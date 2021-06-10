@@ -22,7 +22,7 @@ class TestConfig(object):
     DB_NAME = "casting_test"
     DEFAULT_DB = "postgresql://{}:{}@{}/{}".format('postgres', 'postgres', 'localhost:5432',
                                                    DB_NAME)
-    DB_PATH = os.getenv('DATABASE_URL', DEFAULT_DB)
+    DB_PATH = os.getenv('TEST_DATABASE_URL', DEFAULT_DB)
     if DB_PATH.startswith("postgres://"):
         DB_PATH = DB_PATH.replace("postgres://", "postgresql://", 1)
     SQLALCHEMY_DATABASE_URI = DB_PATH

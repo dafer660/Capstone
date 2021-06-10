@@ -50,18 +50,18 @@ def create_app(config_file=Config):
         setup_db(app)
 
     # Just do CORS stuff here before request
-    @app.after_request
-    def after_request(response):
-        """
-        Function that handles CORS
-        :param response: response header
-        :return: returns the response with CORS headers
-        """
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-
-        return response
+    # @app.after_request
+    # def after_request(response):
+    #     """
+    #     Function that handles CORS
+    #     :param response: response header
+    #     :return: returns the response with CORS headers
+    #     """
+    #     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+    #     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    #     response.headers.add('Access-Control-Allow-Credentials', 'true')
+    #
+    #     return response
 
     @app.route('/')
     def index():
@@ -222,10 +222,9 @@ def create_app(config_file=Config):
         :return:
         """
         form = request.get_json(force=True)
-        print(form)
 
         if Actors.query.filter_by(name=form['name']).first() is not None:
-            abort(500, "Agent '{}' already exists...".format(
+            abort(500, "Actor '{}' already exists...".format(
                 form['name']
             ))
 
@@ -256,7 +255,6 @@ def create_app(config_file=Config):
         :return:
         """
         form = request.get_json(force=True)
-        print(form)
 
         if Agents.query.filter_by(name=form['name']).first() is not None:
             abort(500, "Agent '{}' already exists...".format(
@@ -316,7 +314,7 @@ def create_app(config_file=Config):
         form = request.get_json(force=True)
 
         if Movies.query.filter_by(title=form['title']).first() is not None:
-            abort(500, "Category title '{}' already exists...".format(
+            abort(500, "Movie '{}' already exists...".format(
                 form['title']
             ))
 
@@ -476,7 +474,7 @@ def create_app(config_file=Config):
             abort(500, e)
 
         return jsonify({
-            'agent': [current_movie.format()]
+            'movie': [current_movie.format()]
         })
 
     @app.route('/actor/<int:actor_id>', methods=['DELETE'])

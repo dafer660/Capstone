@@ -2,11 +2,6 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.2
--- Dumped by pg_dump version 13.2
-
--- Started on 2021-06-09 19:47:24
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -21,6 +16,8 @@ SET row_security = off;
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
+
+
 
 --
 -- Name: actors; Type: TABLE; Schema: public;
@@ -275,8 +272,8 @@ COPY public.agents (id, name, joined_in) FROM stdin;
 --
 
 COPY public.actors (id, name, age, gender, joined_in, agent_id) FROM stdin;
-2	Charlie Tuff	30	Male	2019-05-01	1
-3	Ana Torres	27	Female	2019-05-01	2
+1	Charlie Tuff	30	Male	2019-05-01	1
+2	Ana Torres	27	Female	2019-05-01	2
 \.
 
 --
