@@ -11,8 +11,7 @@ This project is hosted on Heroku with two independent applications, a **Flask Ap
 - [Backend/API](https://ferreira-capstone.herokuapp.com/) 
 - [Frontend](https://ferreira-capstoneui.herokuapp.com)
 
-###### NOTE:
-only the index page in our _API does not require authentication_.
+###### NOTE: only the index page in our API allows no authentication.
 
 #### Resources
 
@@ -28,3 +27,5 @@ only the index page in our _API does not require authentication_.
 - [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/)
 - [Deploy a Flask App on Heroku](https://docs.appseed.us/content/how-to/flask-deploy-on-heroku)
 - [Free Logo designer](https://www.freelogodesign.org/)
+
+<img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimg00.deviantart.net%2F2ae2%2Fi%2F2017%2F283%2F4%2F0%2Fbeer_mug_vector_by_checonx-dbq7hie.png&f=1&nofb=1" alt="drawing" style="width:200px;"/>

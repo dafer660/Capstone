@@ -94,7 +94,7 @@ class App extends Component {
                     <Layout>
                         <Toolbar/>
                         <Switch>
-                            <Route path="/"
+                            <Route path={"/"}
                                    exact
                                    component={(props) => <Homepage/>}/>
                             <ProtectedRoute path="/actors"
@@ -212,7 +212,7 @@ class App extends Component {
                                                                                 handleCan={this.handleCan}/>}/>
                             <Route path="/about"
                                    component={(props) => <About/>}/>
-                            <Route render={() => <Redirect to={"/"} />} />
+                            <Route path={'*'} render={() => <Redirect to={"/"} />} />
                         </Switch>
                     </Layout>
                 </Router>

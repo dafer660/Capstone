@@ -1,70 +1,107 @@
-# Getting Started with Create React App
+# Udacity Capstone Frontend using ReactJS
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+------------
 
-## Available Scripts
+## Introduction
 
-In the project directory, you can run:
+With this front end you should be able to:
 
-### `npm start`
+- View the ``Homepage`` and ``About`` page without authentication.
+- Authentication is done using [Auth0](https://auth0.com/).
+- If authenticated, you should be able to access he ``Data`` tab in the Toolbar.
+- The Data tab has 4 items, ``Agents``, ``Actors``, ``Categories`` and ``Movies``.
+- According to the role, you will be able to perform actions, such as, ``view``, ``create``, ``update`` or ``delete`` records.
+- There are 3 main roles using ``RBAC`` in [Auth0](https://auth0.com/):
+    - **Casting Assistant**:
+        - ``view`` Actors, Agents, Categories and Movies;
+    - **Casting Director**:
+        - ``view`` Actors, Agents, Categories and Movies;
+        - ``create`` Actors and Agents;
+        - ``update`` Actors, Agents and Movies;
+        - ``delete`` Actors and Agents;
+    - **Executive Producer**:
+        - has all permissions.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Pre-requisites and Local Development
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Developers using this project should already have Node, installed on their local machines.
 
-### `npm test`
+### Installing Dependencies
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+##### Node JS
 
-### `npm run build`
+Download and install [Node](https://nodejs.org/en/download/). Also check the guides for your own platform/OS.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+##### Project Dependencies
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+From the front end folder run ``npm install``. All required packages are included in the ``package.json`` file.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+#### Key Dependencies
 
-### `npm run eject`
+- [Auth0 ReactJS SDK](https://auth0.com/docs/quickstart/spa/react) easy to integrate Auth0 API into ReactJS.
+- [Material UI](https://material-ui.com/getting-started/installation/) for some easier styling and good looking components out of the box.
+- [express](http://expressjs.com/en/starter/installing.html) in order to run our front end in Production (in Heroku).
+- [jwt-decode](https://github.com/auth0/jwt-decode) library from Auth0 to decode our JWT tokens from Auth0.
+- [moment](https://www.npmjs.com/package/moment/v/1.1.0) to handle dates.
+- [react-paginate](https://www.npmjs.com/package/react-paginate) handles pagination.
+- [react-router-dom](https://www.npmjs.com/package/react-router-dom) for navigation in our SPA.
+- [webpack-cli](https://www.npmjs.com/package/webpack-cli/v/3.3.0)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Running the Server
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Throughout the app, all the ``fetch`` requests are done using an environment variable, ``REACT_APP_API_URL``.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Development
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Create a ``.env`` file and add the line ``REACT_APP_API_URL=http://localhost:5000``.
 
-## Learn More
+To run the local server, simply run from the console in the root folder ``npm run dev``, then a window should open on [http://127.0.0.1:3000/](http://127.0.0.1:3000/)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Production
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+When you deploy into production, it will be easier to setup by adding a ``Config Var`` to the React Application in Heroku.
+Simply run ``heroku config:set REACT_APP_API_URL=<API URL>``. Amend the API URL according to your Backend API URL that you created in Heroku.
 
-### Code Splitting
+Take note on the version of ``node`` in ``package.json`` file:
+````json
+  "engines": {
+    "node": "14.x"
+  },
+````
+Also in the ``package.json`` file, make changes under ``scripts`` according to your liking, but be sure to leave ``heroku-postbuild`` which will handle our server to start:
+````json
+  "scripts": {
+    "dev": "react-scripts start",
+    "start": "node server.js",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "heroku-postbuild": "npm install && npm run build"
+  },
+````
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Make sure you have the ``server.js`` file in the root folder, which will run your react application using express:
+````js
+const express = require('express')
+const app = express()
+const path = require('path')
+const port = process.env.PORT || 5000
 
-### Analyzing the Bundle Size
+// make sure you amend the path.
+// in this case the react application will be packaged in the build directory
+app.use('/', express.static(path.join(__dirname, '/build')))
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+app.listen(port, () => console.log("Listening on Port", port))
+````
 
-### Making a Progressive Web App
+Also create a ``Procfile`` with the following line ``web: npm run start`` which will start our express server.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+To run the server you need to commit the root folder to Heroku:
+- ``git init`` - if you haven't done so.
+- ``git add .`` - this will add all the files not in .gitignore file to be ready to be pushed to the repo.
+- ``git commit -m "1st commit."`` - commit the files to the repo.
+- ``git push heroku master`` - pushed the files and builds the react application.
 
-### Advanced Configuration
+###### NOTES:
+- you can create a ``static.json`` file with your needs. [follow or read this documentation](https://github.com/mars/create-react-app-buildpack#web-server) for more details.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
