@@ -54,7 +54,7 @@ This will install all of the required packages we selected within the ``requirem
 - Start by creating the database running the command
 ``createdb -U postgres casting``.
   
-- Then you can simply run the script ``psql -U <USER> -h localhost -d casting -a -f 'default.sql'`` and the database will have some default data in it.
+- Then you can simply run the script ``psql -U <USER> -h localhost -d casting -a -f 'casting.sql'`` and the database will have some default data in it.
 
 ### Production
 
@@ -72,6 +72,32 @@ flask db migrate -m "1st migration"
 
 NOTE: be sure to remove the migrations folder from your ```.gitignore``` file.
 
+## Running Tests
+
+Tests can be run with the python file ```test_app.py```
+
+### Development
+
+For tests to run properly, we need to setup the test database, by running the following sequence of commands
+````python
+dropdb -U postgres casting_test
+createdb -U postgres casting_test
+psql -d casting_test -U postgres -f casting_test.sql
+python test_app.py
+````
+
+NOTES:
+- Make sure you run these commands on the root folder of the ``backend`` folder.
+- The above commands assume you are using the user ``postgres`` to create and drop the databases.
+
+### Production
+
+- Create a second Postgres addon: ``heroku addons:create heroku-postgresql --app <APP NAME>``.
+- Check which addons we have ready, ``heroku addons --app <APP NAME>`` and we can get the name of the database.
+- Create the tables and add the dummy data ``heroku pg:psql <DB NAME> --app <APP NAME> < casting_test.sql``.
+- In case you already have a database you can use, simply wipe the database ``heroku pg:reset <DB NAME> --confirm <APP NAME>`` and re-run the command above.
+- We can run the ``python test_app.py`` within our app now with ``heroku run bash --app <APP NAME>``
+
 ## Running the Server
 
 ### Development
@@ -79,10 +105,10 @@ NOTE: be sure to remove the migrations folder from your ```.gitignore``` file.
 ```python
 set FLASK_APP=flaskr
 set FLASK_ENV=development
-flask run --port 5001
+flask run
 ```
 
-The application should run on [http://127.0.0.1:5001/](http://127.0.0.1:5001/)
+The application should run on [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
 
 ### Production
 
