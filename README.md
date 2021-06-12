@@ -28,4 +28,4 @@ This project is hosted on Heroku with two independent applications, a **Flask Ap
 - [Deploy a Flask App on Heroku](https://docs.appseed.us/content/how-to/flask-deploy-on-heroku)
 - [Free Logo designer](https://www.freelogodesign.org/)
 
-<img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimg00.deviantart.net%2F2ae2%2Fi%2F2017%2F283%2F4%2F0%2Fbeer_mug_vector_by_checonx-dbq7hie.png&f=1&nofb=1" alt="drawing" style="width:100px;"/>
+<img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimg00.deviantart.net%2F2ae2%2Fi%2F2017%2F283%2F4%2F0%2Fbeer_mug_vector_by_checonx-dbq7hie.png&f=1&nofb=1" alt="drawing" style="width:50px;"/>
