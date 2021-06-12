@@ -58,7 +58,7 @@ This will install all of the required packages we selected within the ``requirem
 
 ### Production
 
-- If the app is already created and the Postgres Database is already present as add-on in your app, simply run ``heroku pg:psql <DB NAME> --app <APP NAME> < default.sql`` and it will generate the same default data.
+- If the app is already created and the Postgres Database is already present as add-on in your app, simply run ``heroku pg:psql <DB NAME> --app <APP NAME> < casting.sql`` and it will generate the same default data.
 
 - In the case you don't have a Postgres database attached to your app, you can do so by running the following command ``heroku addons:attach heroku-postgresql -a <APP_NAME>``.
 
@@ -70,7 +70,7 @@ flask db migrate -m "1st migration"
 
 - Then you can simply upgrade the database on heroku by running ``heroku run flask db upgrade`` and it will migrate/upgrade your database.
 
-NOTE: be sure to remove the migrations folder from your ```.gitignore``` file.
+**NOTE:** be sure to remove the migrations folder from your ```.gitignore``` file.
 
 ## Running Tests
 
@@ -86,7 +86,7 @@ psql -d casting_test -U postgres -f casting_test.sql
 python test_app.py
 ````
 
-NOTES:
+###### NOTES:
 - Make sure you run these commands on the root folder of the ``backend`` folder.
 - The above commands assume you are using the user ``postgres`` to create and drop the databases.
 

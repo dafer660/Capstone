@@ -68,7 +68,7 @@ Take note on the version of ``node`` in ``package.json`` file:
     "node": "14.x"
   },
 ````
-Also in the ``package.json`` file, make changes under ``scripts`` according to your liking, but be sure to leave ``heroku-postbuild`` which will handle our server to start:
+Also in the ``package.json`` file, make changes under ``scripts`` according to your liking, but be sure to leave ``heroku-postbuild`` which will handle our app build:
 ````json
   "scripts": {
     "dev": "react-scripts start",
@@ -80,7 +80,7 @@ Also in the ``package.json`` file, make changes under ``scripts`` according to y
   },
 ````
 
-Make sure you have the ``server.js`` file in the root folder, which will run your react application using express:
+Make sure you have the ``server.js`` file in the root folder, which will run your ``ReactJS`` application using ``express``:
 ````js
 const express = require('express')
 const app = express()
@@ -102,10 +102,27 @@ Also create a ``Procfile`` with the following line ``web: npm run start`` which 
 
 To run the server you need to commit the root folder to Heroku:
 - ``git init`` - if you haven't done so.
-- ``git add .`` - this will add all the files not in .gitignore file to be ready to be pushed to the repo.
+- ``git add .`` - this will add all the files not in ``.gitignore`` file to be ready to be pushed to the repo.
 - ``git commit -m "1st commit."`` - commit the files to the repo.
-- ``git push heroku master`` - pushed the files and builds the react application.
+- ``git push heroku master`` - pushes the files and builds the react application.
 
 ###### NOTES:
 - you can create a ``static.json`` file with your needs. [follow or read this documentation](https://github.com/mars/create-react-app-buildpack#web-server) for more details.
+
+An example in included in this app:
+
+````json
+{
+  "root": "build/",
+  "clean_urls": false,
+  "routes": {
+    "/**": "index.html"
+  },
+  "proxies": {
+    "/": {
+      "origin": "${REACT_APP_API_URL}"
+    }
+  }
+}
+````
 
